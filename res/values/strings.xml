@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Clerk</string>
+    <string-array name="navigation_array">
+        <item>Subject</item>
+        <item>Archive</item>
+        <item>Settings</item>
+    </string-array>
+</resources>
