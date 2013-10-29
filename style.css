@@ -23,11 +23,6 @@
     z-index:5;
 }
 
-body {
-	border-top:3px solid #ff5f5f;
-	background-color:#FFF;
-}
-
 a {
 	text-decoration:none;
 	color:#000;
@@ -54,6 +49,10 @@ a {
     
     #headlinks {
         top:-20px;
+    }
+    
+    #intro {
+        top:270px;
     }
     
     #intro, #us {
@@ -103,8 +102,19 @@ a {
         top:-20px;
     }
     
+    #intro {
+        top:270px;
+    }
+    
     #intro, #us {
     	padding: 0 2% 10% 2%;
+    }
+}
+
+@media screen and (min-width:435px) and (max-width:600px) {
+    #intro {
+        padding-top:80px !important;
+        height:400px !important;
     }
 }
 
@@ -129,6 +139,12 @@ a {
     
     #headlinks {
         top:-60px;
+    }
+    
+    #intro {
+        top:360px;
+        padding-top:70px !important;
+        padding-bottom:110px !important;
     }
     
     #intro, #us {
@@ -159,6 +175,12 @@ a {
         top:-65px;
     }
     
+    #intro {
+        top:370px;
+        padding-top:80px !important;
+        padding-bottom:110px !important;
+    }
+    
     #intro, #us {
     	padding: 5% 5% 10% 5%;
     }
@@ -187,8 +209,13 @@ a {
         top:-70px;
     }
     
+    #intro {
+        top:420px;
+        padding: 80px 6% 150px 6% !important;
+    }
+    
     #intro, #us {
-    	padding: 5% 6% 10% 6%;
+    	padding: 5% 7% 10% 7%;
     }
 }
 
@@ -213,6 +240,12 @@ a {
     
     #headlinks {
         top:-72px;
+    }
+    
+    #intro {
+        top:480px;
+        padding-top:80px !important;
+        padding-bottom:210px !important;
     }
     
     #intro, #us {
@@ -243,6 +276,12 @@ a {
         top:-75px;
     }
     
+    #intro {
+        top:490px;
+        padding-top:80px !important;
+        padding-bottom:210px !important;
+    }
+    
     #intro, #us {
     	padding: 5% 8% 10% 8%;
     }
@@ -271,6 +310,12 @@ a {
         top:-75px;
     }
     
+    #intro {
+        top:550px;
+        padding-top:80px !important;
+        padding-bottom:270px !important;
+    }
+    
     #intro, #us {
     	padding: 5% 8% 10% 8%;
     }
@@ -279,6 +324,10 @@ a {
 @media only screen and (min-width: 1110px) {
     #head {
         background-size: 100%;
+    }
+    
+    #intro {
+        top:550px;
     }
     
     #intro, #us {
@@ -290,7 +339,9 @@ a {
     }
 }
 
-#head, #head div, #head div p, #head p, #head div a {
+#head {
+    position:fixed;
+    border-top:3px solid #ff5f5f;
     background-repeat:no-repeat;
     z-index: 1 !important;
     background-attachment:fixed;
@@ -310,6 +361,7 @@ a {
 	text-align:center;
 	font-size:1.5em;
 	position:relative;
+    left:0px;
 	width:100%;
 	clear:both;
     z-index: 2 !important;
@@ -322,7 +374,10 @@ a {
 }
 
 #intro {
-	margin: 5% 0 0 0;
+    padding-top:50px;
+    position:relative;
+    height:450px;
+    background:#fff;
 }
 
 #introleft {
@@ -337,12 +392,14 @@ a {
 }
 
 #solution {
+    position:relative;
 	background-color:#ff5f5f;
 	color:#FFF;
 	padding: 7% 7% 7% 7%;
 }
 
 #us {
+    position:relative;
     background-color:#333;
     color:#fff;
     padding: 0 
@@ -351,9 +408,11 @@ a {
 .features {
 	background-color:#FFF;
     padding:30px 7% 0 7%;
+    position:relative;
 }
 
 #you {
+    position:relative;
 	background-color:#ff5f5f;
 	color:#FFF;
     padding: 0 7% 7% 7%;
