@@ -29,14 +29,14 @@ public class xmlParse extends AsyncTask<String, Void, List<Map<String, String>>>
 	}
 	
 	public static Map<String,String> parse(JSONObject json , Map<String,String> out) throws JSONException{
-	    Iterator<String> keys = json.keys();
+	    Iterator<?> keys = json.keys();
 	    while(keys.hasNext()){
-	        String key = keys.next();
+	        String key = (String) keys.next();
 	        String val = null;
 	        try{
 	             JSONObject value = json.getJSONObject(key);
 	             parse(value,out);
-	        }catch(Exception e){
+	        } catch(Exception e){
 	            val = json.getString(key);
 	        }
 
