@@ -37,6 +37,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		    ArticleEntry.COLUMN_NAME_RANK + INT_TYPE + "," +
 		    ArticleEntry.COLUMN_NAME_SAVE + INT_TYPE +
 		    " );";
+	
+	private static final String SQL_CREATE_AUTHENTICATION = 
+			"CREATE TABLE IF NOT EXISTS " + AuthEntry.TABLE_NAME + "(" +
+			AuthEntry._ID + " INTEGER PRIMARY KEY," +
+			AuthEntry.COLUMN_NAME_REFRESH + TEXT_TYPE + ");";
 
 	private static final String SQL_DELETE_ARTICLES = 
 		"DELETE FROM " + ArticleEntry.TABLE_NAME + " WHERE id IN (";
@@ -55,6 +60,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE_ARTICLES);
+		db.execSQL(SQL_CREATE_AUTHENTICATION);
 	}
 
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -106,20 +112,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return titles;
 	}
 	
-	public ArrayList<String> readSources() {
-		ArrayList<String> sources = new ArrayList<String>();
-		
-		Cursor c = readDB.rawQuery("select * from " + SourceEntry.TABLE_NAME, null);
-		c.moveToFirst();
-		while (!c.isAfterLast()) {
-			sources.add(c.getString(2));
-			c.moveToNext();
-		}
-		c.close();
-		
-		return sources;
-	}
-
 	public Article readArticle(String[] title) {
 		Article article = null;
 
@@ -189,8 +181,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String COLUMN_NAME_SAVE = "save";
     }
     
-    public static abstract class SourceEntry implements BaseColumns {
-    	public static final String TABLE_NAME = "sources";
-    	public static final String COLUMN_NAME_LINK = "link";
+    public static abstract class AuthEntry implements BaseColumns {
+    	public static final String COLUMN_NAME_REFRESH = "refresh";
+		public static final String TABLE_NAME = "authentication";
     }
+
+	public void writeToken(String refresh) {
+		ContentValues values = new ContentValues();
+		values.put(AuthEntry.COLUMN_NAME_REFRESH, refresh);
+		writeDB.insert(AuthEntry.TABLE_NAME, null, values);
+	}
+	
+	public String readToken() {
+		String token = null;
+
+		Cursor c = readDB.rawQuery("select * from " + AuthEntry.TABLE_NAME, null);
+		c.moveToFirst();
+		while (!c.isAfterLast()) {
+			token = c.getString(1);
+			c.moveToNext();
+		}
+		c.close();
+
+		return token;
+	}
 }

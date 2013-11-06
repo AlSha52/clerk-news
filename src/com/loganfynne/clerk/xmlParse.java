@@ -90,7 +90,7 @@ public class xmlParse extends AsyncTask<String, Void, List<Map<String, String>>>
 			}
 			
 			new Database(context, articles, adapter).execute();
-			new Database(context, null, adapter).execute();
+			//new Database(context, null, adapter).execute();
 			
 		}
 	}

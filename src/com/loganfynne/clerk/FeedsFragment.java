@@ -17,7 +17,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 public class FeedsFragment extends ListFragment {
 	public static final String ARG_DRAWER_NUMBER = "drawer_number";
-	private String[] url = {"http://www.engadget.com/rss.xml", "http://www.theverge.com/rss/frontpage", "http://planet.mozilla.org/atom.xml"};
+	//private String[] url = {"http://www.engadget.com/rss.xml", "http://www.theverge.com/rss/frontpage", "http://planet.mozilla.org/atom.xml"};
 	DatabaseHelper dh = Clerk.getDatabase();
 	//private ArrayList<String> url = dh.readSources();
 	private ArrayList<String> titles = new ArrayList<String>();
@@ -59,8 +59,8 @@ public class FeedsFragment extends ListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		adapter = new ArrayAdapter<String>(inflater.getContext(), android.R.layout.simple_list_item_1, titles);
 		
-		new Database(context, null, adapter).execute();
-		new xmlParse(Clerk.singleton, adapter).execute(url);
+		//new Database(context, null, adapter).execute();
+		//new xmlParse(Clerk.getInstance(), adapter).execute(url);
 		
 		setListAdapter(adapter);
 

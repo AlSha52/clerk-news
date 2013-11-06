@@ -29,11 +29,12 @@ public class Database extends AsyncTask<String, Void, Collection<String>> {
     @Override
     protected Collection<String> doInBackground(String... arg0) {
     	DatabaseHelper DbHelper = DatabaseHelper.getInstance(context);
+    	
     	if (articles != null) {
             DbHelper.writeArticles(articles);
             Log.d("Database","Wrote Articles!");
     	}
-        
+    	
         Collection<String> titles = DbHelper.readTitles(selection);
         
         for (String t : titles) {

@@ -8,10 +8,30 @@
 package com.loganfynne.clerk;
 
 public final class R {
-    public static final class array {
-        public static final int navigation_array=0x7f050000;
-    }
     public static final class attr {
+        /** <p>Must be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>ARGB_8888</code></td><td>0</td><td></td></tr>
+<tr><td><code>ARGB_4444</code></td><td>1</td><td></td></tr>
+<tr><td><code>RGB_565</code></td><td>2</td><td></td></tr>
+</table>
+         */
+        public static final int animationBitmapFormat=0x7f010001;
+        /** <p>Must be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>vertical</code></td><td>0</td><td></td></tr>
+<tr><td><code>horizontal</code></td><td>1</td><td></td></tr>
+</table>
+         */
+        public static final int orientation=0x7f010000;
     }
     public static final class drawable {
         public static final int action_search=0x7f020000;
@@ -20,29 +40,90 @@ public final class R {
         public static final int ic_launcher=0x7f020003;
     }
     public static final class id {
-        public static final int body=0x7f080003;
-        public static final int cancel=0x7f080005;
-        public static final int contentArticle=0x7f080007;
-        public static final int content_frame=0x7f080001;
-        public static final int drawer_layout=0x7f080000;
-        public static final int left_drawer=0x7f080002;
-        public static final int ok=0x7f080004;
-        public static final int textContent=0x7f080008;
-        public static final int textTitle=0x7f080006;
+        public static final int ARGB_4444=0x7f040003;
+        public static final int ARGB_8888=0x7f040002;
+        public static final int RGB_565=0x7f040004;
+        public static final int authWeb=0x7f04000e;
+        public static final int body=0x7f040006;
+        public static final int cancel=0x7f040008;
+        public static final int contentArticle=0x7f04000a;
+        public static final int content_frame=0x7f040005;
+        public static final int flipView=0x7f04000c;
+        public static final int horizontal=0x7f040001;
+        public static final int ok=0x7f040007;
+        public static final int progress=0x7f04000d;
+        public static final int textContent=0x7f04000b;
+        public static final int textTitle=0x7f040009;
+        public static final int vertical=0x7f040000;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int addsource=0x7f030001;
         public static final int article=0x7f030002;
-        public static final int drawer_list_item=0x7f030003;
+        public static final int article_view=0x7f030003;
+        public static final int auth_view=0x7f030004;
+        public static final int drawer_list_item=0x7f030005;
     }
     public static final class menu {
         public static final int main=0x7f070000;
     }
     public static final class string {
-        public static final int app_name=0x7f040000;
+        public static final int app_name=0x7f050000;
     }
     public static final class style {
-        public static final int Theme_OurTheme=0x7f060000;
+        public static final int AppTheme=0x7f060000;
+        public static final int Theme_OurTheme=0x7f060001;
     }
+    public static final class styleable {
+        /** Attributes that can be used with a FlipViewController.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #FlipViewController_animationBitmapFormat com.loganfynne.clerk:animationBitmapFormat}</code></td><td></td></tr>
+           <tr><td><code>{@link #FlipViewController_orientation com.loganfynne.clerk:orientation}</code></td><td></td></tr>
+           </table>
+           @see #FlipViewController_animationBitmapFormat
+           @see #FlipViewController_orientation
+         */
+        public static final int[] FlipViewController = {
+            0x7f010000, 0x7f010001
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.loganfynne.clerk.R.attr#animationBitmapFormat}
+          attribute's value can be found in the {@link #FlipViewController} array.
+
+
+          <p>Must be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>ARGB_8888</code></td><td>0</td><td></td></tr>
+<tr><td><code>ARGB_4444</code></td><td>1</td><td></td></tr>
+<tr><td><code>RGB_565</code></td><td>2</td><td></td></tr>
+</table>
+          @attr name com.loganfynne.clerk:animationBitmapFormat
+        */
+        public static final int FlipViewController_animationBitmapFormat = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.loganfynne.clerk.R.attr#orientation}
+          attribute's value can be found in the {@link #FlipViewController} array.
+
+
+          <p>Must be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>vertical</code></td><td>0</td><td></td></tr>
+<tr><td><code>horizontal</code></td><td>1</td><td></td></tr>
+</table>
+          @attr name com.loganfynne.clerk:orientation
+        */
+        public static final int FlipViewController_orientation = 0;
+    };
 }

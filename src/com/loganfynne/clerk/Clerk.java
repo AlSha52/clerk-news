@@ -5,11 +5,16 @@ import java.util.ArrayList;
 import android.app.Application;
 
 public class Clerk extends Application {
-	static Clerk singleton;
+	private static Clerk singleton;
 	static ArrayList<Article> articles = null;
 	static DatabaseHelper db = null;
+	static String access = null;
 	
-	public Clerk getInstance() {
+	public String getAccess() {
+		return access;
+	}
+	
+	public static Clerk getInstance() {
 		return singleton;
 	}
 	
