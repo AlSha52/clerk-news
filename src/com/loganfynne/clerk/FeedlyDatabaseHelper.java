@@ -2,10 +2,6 @@ package com.loganfynne.clerk;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,11 +10,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class FeedlyDatabaseHelper extends SQLiteOpenHelper {
 	// If you change the database schema, you must increment the database version.
 	public static final int DATABASE_VERSION = 1;
 	public static final String DATABASE_NAME = "Clerk.db";
-	private static DatabaseHelper sInstance = null;
+	private static FeedlyDatabaseHelper sInstance = null;
 	
 	public SQLiteDatabase writeDB = this.getWritableDatabase();
 	public SQLiteDatabase readDB = this.getReadableDatabase();
@@ -50,15 +46,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String SQL_DELETE_ARTICLES = 
 		"DELETE FROM " + ArticleEntry.TABLE_NAME + " WHERE id IN (";
 
-	public static DatabaseHelper getInstance(Context context) {
+	public static FeedlyDatabaseHelper getInstance(Context context) {
 		if (sInstance == null) {
-			sInstance = new DatabaseHelper(context.getApplicationContext());
+			sInstance = new FeedlyDatabaseHelper(context.getApplicationContext());
 		}
 		
 		return sInstance;
 	}
 
-	private DatabaseHelper(Context context) {
+	private FeedlyDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
@@ -75,49 +71,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		onUpgrade(db, oldVersion, newVersion);
 	}
 
-	public void writeArticles(JSONObject result) {
-		JSONObject j = null;
-		String title;
-		String content;
-		JSONArray categories;
-		
-		Long published;
-		
-		ArrayList<String> titles = new ArrayList<String>();
-		try {
-			JSONArray items = result.getJSONArray("items");
-			for (int i = 0; i < items.length(); i++) {
-				j = items.getJSONObject(i);
-				title = j.getString("title");
-				content = j.getJSONObject("content").getString("content");
-				published = j.getLong("published");
-				
-				for (int y = 0; y < ) {j.getJSONArray("categories");}
-				//categories = j.getString("categories").length()
-				
-				titles.add(title);
-				
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		
+	public void writeArticles(ArrayList<Article> writeArticles) {
 		ContentValues values;
 
-//		for (Article a : writeArticles) {
+		for (Article a : writeArticles) {
 			values = new ContentValues();
 			//String title, String description, String link, String date, String author, String image, String categories, String favicon
-			values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
-			values.put(ArticleEntry.COLUMN_NAME_DATE, published);
-			//values.put(ArticleEntry.COLUMN_NAME_IMAGE, a.image);
-			//values.put(ArticleEntry.COLUMN_NAME_FAVICON, a.favicon);
+			values.put(ArticleEntry.COLUMN_NAME_TITLE, a.title);
+			values.put(ArticleEntry.COLUMN_NAME_LINK, a.link);
+			values.put(ArticleEntry.COLUMN_NAME_DATE, a.date);
+			values.put(ArticleEntry.COLUMN_NAME_DESCRIPTION, a.description);
+			values.put(ArticleEntry.COLUMN_NAME_IMAGE, a.image);
+			values.put(ArticleEntry.COLUMN_NAME_FAVICON, a.favicon);
 			values.put(ArticleEntry.COLUMN_NAME_CATEGORIES, a.categories);
 			values.put(ArticleEntry.COLUMN_NAME_AUTHOR, a.author);
 			values.put(ArticleEntry.COLUMN_NAME_SETS, a.set);
 			values.put(ArticleEntry.COLUMN_NAME_RANK, a.rank);
 			values.put(ArticleEntry.COLUMN_NAME_SAVE, a.save);
 			writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
-//		}
+		}
 	}
 	
 	public void deleteArticles(String list) {

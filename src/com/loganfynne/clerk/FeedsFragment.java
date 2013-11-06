@@ -22,12 +22,12 @@ public class FeedsFragment extends ListFragment {
 	//private ArrayList<String> url = dh.readSources();
 	private ArrayList<String> titles = new ArrayList<String>();
 	Context context;
-	
+
 	private static ArrayAdapter<String> adapter = null;
 
 	public FeedsFragment() {
 	}
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -40,28 +40,28 @@ public class FeedsFragment extends ListFragment {
 				return false;
 			}
 		});
-		
+
 		getListView().setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent toArticle = new Intent(view.getContext(), ArticleActivity.class);
-                
-                String selected = (String) (getListView().getItemAtPosition(position));
-                
-                toArticle.putExtra("title", selected);
- 
-                startActivity(toArticle);
-            }
-        });
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Intent toArticle = new Intent(view.getContext(), ArticleActivity.class);
+
+				String selected = (String) (getListView().getItemAtPosition(position));
+
+				toArticle.putExtra("title", selected);
+
+				startActivity(toArticle);
+			}
+		});
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		adapter = new ArrayAdapter<String>(inflater.getContext(), android.R.layout.simple_list_item_1, titles);
-		
+
 		//new Database(context, null, adapter).execute();
 		//new xmlParse(Clerk.getInstance(), adapter).execute(url);
-		
+
 		setListAdapter(adapter);
 
 		return super.onCreateView(inflater, container, savedInstanceState);
