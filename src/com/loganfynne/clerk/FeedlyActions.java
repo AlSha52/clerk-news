@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,8 +17,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 public class FeedlyActions {
 
@@ -61,11 +62,11 @@ public class FeedlyActions {
 		}
 
 		protected JSONObject doInBackground(String... urls) {
-			Log.d("get","Getting");
+			
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(url + "/v3/profile");
 			httpget.setHeader("Authorization", access);
-			Log.d("auth",access);
+			
 			HttpResponse response;
 			try {
 				response = httpclient.execute(httpget);
@@ -95,7 +96,7 @@ public class FeedlyActions {
 		}
 	}
 	
-	public static class getCategories extends AsyncTask<String, Void, JSONObject> {
+	public static class getCategories extends AsyncTask<String, Void, JSONArray> {
 		String url;
 		String access;
 
@@ -104,12 +105,12 @@ public class FeedlyActions {
 			access = mAccess;
 		}
 
-		protected JSONObject doInBackground(String... urls) {
-			Log.d("get","Getting");
+		protected JSONArray doInBackground(String... urls) {
+			
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(url + "/v3/categories");
 			httpget.setHeader("Authorization", access);
-			Log.d("auth",access);
+			
 			HttpResponse response;
 			try {
 				response = httpclient.execute(httpget);
@@ -119,7 +120,7 @@ public class FeedlyActions {
 					InputStream instream = entity.getContent();
 					String jsonstring = convertStreamToString(instream);
 					Log.d("json", jsonstring);
-					JSONObject result = new JSONObject(jsonstring);
+					JSONArray result = new JSONArray(jsonstring);
 					return result;
 				}
 			} catch (ClientProtocolException e) {
@@ -133,7 +134,7 @@ public class FeedlyActions {
 			return null;
 		}
 
-		protected void onPostExecute(JSONObject result) {
+		protected void onPostExecute(JSONArray result) {
 			if (result != null) {
 			}
 		}
@@ -143,21 +144,24 @@ public class FeedlyActions {
 		String url;
 		String access;
 		String id;
-		Long timestamp;
+		Context context;
+		ArrayAdapter<String> adapter;
 
-		public getStream (String mUrl, String mAccess, String mId, Long mTimestamp) {
+		public getStream (String mUrl, String mAccess, String mId, Context mContext, ArrayAdapter<String> mAdapter) {
 			url = mUrl;
 			access = mAccess;
 			id = mId;
-			timestamp = mTimestamp;
+			context = mContext;
+			adapter = mAdapter;
 		}
 
-		protected JSONArray doInBackground(String... urls) {
-			Log.d("get","Getting");
+		protected JSONObject doInBackground(String... urls) {
+			
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpGet httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&unreadOnly=true");
+			HttpGet httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id);
 			httpget.setHeader("Authorization", access);
-			Log.d("auth",access);
+			
+			Log.d("id", id);
 			HttpResponse response;
 			try {
 				response = httpclient.execute(httpget);
@@ -183,26 +187,11 @@ public class FeedlyActions {
 		
 		protected void onPostExecute(JSONObject result) {
 			if (result != null) {
-				JSONObject j = null;
-				String title;
-				ArrayList<String> titles = new ArrayList<String>();
-				try {
-					JSONArray items = result.getJSONArray("items");
-					for (int i = 0; i < items.length(); i++) {
-						j = items.getJSONObject(i);
-						title = j.getString("title");
-						titles.add(title);
-						
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				
-				//TODO Write parser that gets content then calls FeedlyDatabase instance, then updated arrayadapter
-				
+				new Database(context, result, adapter).execute();
 			}
 		}
 	}
+	
 	
 	public static class getSubscriptions extends AsyncTask<String, Void, JSONArray> {
 		String url;
@@ -214,11 +203,11 @@ public class FeedlyActions {
 		}
 
 		protected JSONArray doInBackground(String... urls) {
-			Log.d("get","Getting");
+			
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(url + "/v3/subscriptions");
 			httpget.setHeader("Authorization", access);
-			Log.d("auth",access);
+			
 			HttpResponse response;
 			try {
 				response = httpclient.execute(httpget);
@@ -245,16 +234,14 @@ public class FeedlyActions {
 		protected void onPostExecute(JSONArray result) {
 			if (result != null) {
 				JSONObject j = null;
-				String id;
-				Long timestamp;
+				//String id;
+				//Long timestamp;
 				
 				for (int i = 0; i < result.length(); i++) {
 					try {
 						j = result.getJSONObject(i);
-						id = j.getString("id");
-						timestamp = j.getLong("updated");
-						
-						//TODO Write parser that gets data then calls a FeedlyDatabase instance
+						//id = j.getString("id");
+						//timestamp = j.getLong("updated");
 					} catch (JSONException e) {}
 				}
 			}

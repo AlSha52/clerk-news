@@ -58,9 +58,14 @@ public class FeedsFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		adapter = new ArrayAdapter<String>(inflater.getContext(), android.R.layout.simple_list_item_1, titles);
+		Bundle bundle = this.getArguments();
+		String access = bundle.getString("access");
+		String url = bundle.getString("url");
+		String id = bundle.getString("id");
 
 		//new Database(context, null, adapter).execute();
 		//new xmlParse(Clerk.getInstance(), adapter).execute(url);
+		new FeedlyActions.getStream(url, access, id, Clerk.getInstance(), adapter).execute();
 
 		setListAdapter(adapter);
 

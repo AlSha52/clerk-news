@@ -1,7 +1,8 @@
 package com.loganfynne.clerk;
 
-import java.util.ArrayList;
 import java.util.Collection;
+
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -10,12 +11,11 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 
 public class Database extends AsyncTask<String, Void, Collection<String>> {
-	String selection = "rank";
 	Context context;
-	ArrayList<Article> articles = null;
+	JSONObject articles = null;
 	ArrayAdapter<String> adapter = null;
 	
-    public Database(Context mContext, ArrayList<Article> mArticles, ArrayAdapter<String> mAdapter) {
+    public Database(Context mContext, JSONObject mArticles, ArrayAdapter<String> mAdapter) {
     	context = mContext;
     	articles = mArticles;
     	adapter = mAdapter;
@@ -35,7 +35,7 @@ public class Database extends AsyncTask<String, Void, Collection<String>> {
             Log.d("Database","Wrote Articles!");
     	}
     	
-        Collection<String> titles = DbHelper.readTitles(selection);
+        Collection<String> titles = DbHelper.readTitles();
         
         for (String t : titles) {
         	Log.d("titles", t);

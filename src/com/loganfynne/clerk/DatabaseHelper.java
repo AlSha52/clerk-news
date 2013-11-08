@@ -19,42 +19,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public static final int DATABASE_VERSION = 1;
 	public static final String DATABASE_NAME = "Clerk.db";
 	private static DatabaseHelper sInstance = null;
-	
+
 	public SQLiteDatabase writeDB = this.getWritableDatabase();
 	public SQLiteDatabase readDB = this.getReadableDatabase();
-	
+
 	private static final String TEXT_TYPE = " TEXT";
 	private static final String INT_TYPE = " INTEGER";
-	//String title, String description, String link, String date, String author, String image, String categories, String favicon
 	private static final String SQL_CREATE_ARTICLES =
-		    "CREATE TABLE IF NOT EXISTS " + ArticleEntry.TABLE_NAME + " (" +
-		    ArticleEntry._ID + " INTEGER PRIMARY KEY," +
-		    ArticleEntry.COLUMN_NAME_TITLE + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_LINK + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_DATE + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_AUTHOR + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_IMAGE + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_CATEGORIES + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_FAVICON + TEXT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_SETS + INT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_RANK + INT_TYPE + "," +
-		    ArticleEntry.COLUMN_NAME_SAVE + INT_TYPE +
-		    " );";
-	
+			"CREATE TABLE IF NOT EXISTS " + ArticleEntry.TABLE_NAME + " (" +
+					ArticleEntry._ID + " INTEGER PRIMARY KEY," +
+					ArticleEntry.COLUMN_NAME_TITLE + TEXT_TYPE + "," +
+					ArticleEntry.COLUMN_NAME_CATEGORIES + TEXT_TYPE + "," +
+					ArticleEntry.COLUMN_NAME_AUTHOR + TEXT_TYPE + "," +
+					ArticleEntry.COLUMN_NAME_CONTENT + TEXT_TYPE + "," +
+					ArticleEntry.COLUMN_NAME_DATE + INT_TYPE + "," +
+					ArticleEntry.COLUMN_NAME_UNREAD + INT_TYPE +
+					" );";
+
 	private static final String SQL_CREATE_AUTHENTICATION = 
 			"CREATE TABLE IF NOT EXISTS " + AuthEntry.TABLE_NAME + "(" +
-			AuthEntry._ID + " INTEGER PRIMARY KEY," +
-			AuthEntry.COLUMN_NAME_REFRESH + TEXT_TYPE + ");";
+					AuthEntry._ID + " INTEGER PRIMARY KEY," +
+					AuthEntry.COLUMN_NAME_REFRESH + TEXT_TYPE + ");";
 
 	private static final String SQL_DELETE_ARTICLES = 
-		"DELETE FROM " + ArticleEntry.TABLE_NAME + " WHERE id IN (";
+			"DELETE FROM " + ArticleEntry.TABLE_NAME + " WHERE id IN (";
 
 	public static DatabaseHelper getInstance(Context context) {
 		if (sInstance == null) {
 			sInstance = new DatabaseHelper(context.getApplicationContext());
 		}
-		
+
 		return sInstance;
 	}
 
@@ -75,60 +69,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		onUpgrade(db, oldVersion, newVersion);
 	}
 
-	public void writeArticles(JSONObject result) {
+	public void writeArticles(JSONObject articles) {
 		JSONObject j = null;
-		String title;
-		String content;
+		ContentValues values;
+		String title = null;
+		String author = null;
 		JSONArray categories;
+		JSONObject c;
+		String label = null;
+		boolean unread = false;
+		Long published = null;
 		
-		Long published;
-		
-		ArrayList<String> titles = new ArrayList<String>();
 		try {
-			JSONArray items = result.getJSONArray("items");
+			JSONArray items = articles.getJSONArray("items");
 			for (int i = 0; i < items.length(); i++) {
 				j = items.getJSONObject(i);
 				title = j.getString("title");
-				content = j.getJSONObject("content").getString("content");
+				author = j.getString("author");
+				
 				published = j.getLong("published");
+				unread = j.optBoolean("unread");
+				categories = j.getJSONArray("categories");
+
+				for (int y = 0; y < categories.length(); y++) {
+					c = categories.getJSONObject(y);
+					label = c.getString("label");
+				}
 				
-				for (int y = 0; y < ) {j.getJSONArray("categories");}
-				//categories = j.getString("categories").length()
-				
-				titles.add(title);
-				
+				values = new ContentValues();
+				values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
+				values.put(ArticleEntry.COLUMN_NAME_CATEGORIES, label);
+				values.put(ArticleEntry.COLUMN_NAME_AUTHOR, author);
+				values.put(ArticleEntry.COLUMN_NAME_CONTENT, j.getJSONObject("content").getString("content"));
+				values.put(ArticleEntry.COLUMN_NAME_DATE, published);
+				values.put(ArticleEntry.COLUMN_NAME_UNREAD, ((unread)? 1 : 0));
+				writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-		ContentValues values;
-
-//		for (Article a : writeArticles) {
-			values = new ContentValues();
-			//String title, String description, String link, String date, String author, String image, String categories, String favicon
-			values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
-			values.put(ArticleEntry.COLUMN_NAME_DATE, published);
-			//values.put(ArticleEntry.COLUMN_NAME_IMAGE, a.image);
-			//values.put(ArticleEntry.COLUMN_NAME_FAVICON, a.favicon);
-			values.put(ArticleEntry.COLUMN_NAME_CATEGORIES, a.categories);
-			values.put(ArticleEntry.COLUMN_NAME_AUTHOR, a.author);
-			values.put(ArticleEntry.COLUMN_NAME_SETS, a.set);
-			values.put(ArticleEntry.COLUMN_NAME_RANK, a.rank);
-			values.put(ArticleEntry.COLUMN_NAME_SAVE, a.save);
-			writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
-//		}
 	}
-	
+
 	public void deleteArticles(String list) {
 		writeDB.execSQL(SQL_DELETE_ARTICLES + list + ");");
 	}
-	
-	public ArrayList<String> readTitles(String selection) {
+
+	public ArrayList<String> readTitles() {
 		ArrayList<String> titles = new ArrayList<String>();
-		
-		String[] value = {"0"};
-		Cursor c = readDB.rawQuery("select * from " + ArticleEntry.TABLE_NAME + " where rank = ?", value);
+
+		Cursor c = readDB.rawQuery("select * from " + ArticleEntry.TABLE_NAME, null);
 		c.moveToFirst();
 		while (!c.isAfterLast()) {
 			titles.add(c.getString(1));
@@ -136,10 +125,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			c.moveToNext();
 		}
 		c.close();
-		
+
 		return titles;
 	}
-	
+
 	public Article readArticle(String[] title) {
 		Article article = null;
 
@@ -155,71 +144,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	private Article cursorToArticle(Cursor c) {
-		Log.d("Database", "Title " + c.getString(1)); // Title
-		Log.d("Database", "Link " + c.getString(2)); //Link
-		Log.d("Database", "Published " + c.getString(3)); //Date Published
-		Log.d("Database", "Content " + c.getString(3)); //Content
-		Log.d("Database", "Cover Image " + c.getString(4)); //Cover Image URI
-		//c.getInt(0);    //Set
-		//c.getInt(1);    //Rank
-		//c.getInt(2);    //Save
-		//String title, String description, String link, String date, String author, String image, String categories, String favicon
-		
-		return new Article(c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-				c.getInt(1), c.getInt(2), c.getInt(3));
+		Log.d("Database", "Title " + c.getString(1));
+		Log.d("Database", "Category " + c.getString(2));
+		Log.d("Database", "Author " + c.getString(3));
+		Log.d("Database", "Content " + c.getString(4));
+		Log.d("Database", "Published " + Long.toString(c.getInt(1)));
+		Log.d("Database", "Unread " + Integer.toString(c.getInt(2)));
+
+		return new Article(c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getInt(1), c.getInt(2));
 	}
 
-	public void arrangeSets(ArrayList<Article> unsorted) {
-		//Sorting
-		//Sorting
-		//Sorting
-		//Sorting
-		//Sorting
-		//Sorting
-	}
-
-	public void rankSet(ArrayList<Article> set) {
-		int rank = 0;
-
-		//Ranking
-
-		for (Article a : set) {
-			//Fetch likes of each article
-			//Fetch retweets of each article
-			//Get number of Twitter followers of source
-			//Get length of source
-			a.rank = rank;
-			rank++;
-		}
-	}
-	
-    public static abstract class ArticleEntry implements BaseColumns {
-
-		public static final String COLUMN_NAME_AUTHOR = "author";
+	public static abstract class ArticleEntry implements BaseColumns {
 		public static final String TABLE_NAME = "articles";
-        public static final String COLUMN_NAME_TITLE = "title";
-        public static final String COLUMN_NAME_LINK = "link";
-        public static final String COLUMN_NAME_DATE = "date";
-        public static final String COLUMN_NAME_DESCRIPTION = "description";
-        public static final String COLUMN_NAME_IMAGE = "image"; //URL to cover image stored in FS
-        public static final String COLUMN_NAME_SETS = "sets";
-		public static final String COLUMN_NAME_FAVICON = "favicon";
+
+		public static final String COLUMN_NAME_TITLE = "title";
+		public static final String COLUMN_NAME_DATE = "date";
 		public static final String COLUMN_NAME_CATEGORIES = "categories";
-        public static final String COLUMN_NAME_RANK = "rank";
-        public static final String COLUMN_NAME_SAVE = "save";
-    }
-    
-    public static abstract class AuthEntry implements BaseColumns {
-    	public static final String COLUMN_NAME_REFRESH = "refresh";
+		public static final String COLUMN_NAME_AUTHOR = "author";
+		public static final String COLUMN_NAME_CONTENT = "content";
+		public static final String COLUMN_NAME_UNREAD = "unread";
+	}
+
+	public static abstract class AuthEntry implements BaseColumns {
+		public static final String COLUMN_NAME_REFRESH = "refresh";
 		public static final String TABLE_NAME = "authentication";
-    }
+	}
 
 	public void writeToken(String refresh) {
 		ContentValues values = new ContentValues();
 		values.put(AuthEntry.COLUMN_NAME_REFRESH, refresh);
 		writeDB.insert(AuthEntry.TABLE_NAME, null, values);
 	}
-	
+
 	public String readToken() {
 		String token = null;
 

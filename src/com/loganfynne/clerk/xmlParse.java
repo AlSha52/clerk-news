@@ -81,7 +81,7 @@ public class xmlParse extends AsyncTask<String, Void, List<Map<String, String>>>
 			ArrayList<Article> articles = new ArrayList<Article>();
 			for (Map<String, String> m : result) {
 				//String title, String description, String link, String date, String author, String image, String categories, String favicon
-				articles.add(new Article(m.get("title"),m.get("description"), m.get("link"), m.get("date"), m.get("author"), "image", m.get("categories"), m.get("favicon"), 0, 0, 0));
+				articles.add(new Article(m.get("title"), m.get("author"), m.get("categories"), m.get("content"), 0,  0));
 				//adapter.add(m.get("title"));
 			}
 			
@@ -89,7 +89,7 @@ public class xmlParse extends AsyncTask<String, Void, List<Map<String, String>>>
 				Log.d("a", a.toString());
 			}
 			
-			new Database(context, articles, adapter).execute();
+			
 			//new Database(context, null, adapter).execute();
 			
 		}

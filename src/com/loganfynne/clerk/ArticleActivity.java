@@ -26,7 +26,12 @@ public class ArticleActivity extends Activity {
         a = db.readArticle(title);
         
 		Log.d("Database", "Title " + a.title); // Title
-		Log.d("Database", "Link " + a.link); //Link
+		Log.d("Database", "Author " + a.author);
+		Log.d("Database", "Category" + a.categories);
+		Log.d("Database", "Content " + a.content);
+		
+		Log.d("Database", "Date" + a.published);
+		Log.d("Database", "Unread" + a.unread);
         
         setContentView(R.layout.article);
         
@@ -50,7 +55,7 @@ public class ArticleActivity extends Activity {
  
         // Displaying Received data
         textTitle.setText(a.title);
-        textContent.loadDataWithBaseURL(null, a.description, "text/html", "utf-8", null);
+        textContent.loadDataWithBaseURL(null, a.content, "text/html", "utf-8", null);
         
  
     }

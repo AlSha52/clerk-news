@@ -39,9 +39,15 @@ public class ClerkActivity extends Activity {
 		new FeedlyActions.getSubscriptions(url, data.getStringExtra("access")).execute();
 		new FeedlyActions.getCategories(url, data.getStringExtra("access")).execute();
 
-		/*Fragment fragment = new FeedsFragment();
+		Fragment fragment = new FeedsFragment();
+		Bundle bundle = new Bundle();
+		bundle.putString("access", data.getStringExtra("access"));
+		bundle.putString("url", url);
+		//bundle.putString("id", "feed/https://medium.com/feed/@kylry/");
+		bundle.putString("id", "feed/http://www.theverge.com/rss/full.xml");
+		fragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();*/
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 	}
 
 	@Override
