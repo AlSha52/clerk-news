@@ -1,75 +1,129 @@
 package com.loganfynne.clerk;
 
+import java.util.ArrayList;
+
+import com.aphidmobile.flip.FlipViewController;
+
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-//import android.text.TextPaint;
-import android.widget.TextView;
-//import android.graphics.Paint.FontMetrics;
-import android.graphics.Typeface;
+import android.webkit.WebViewClient;
+import android.widget.BaseAdapter;
+import android.graphics.Bitmap;
 
 public class ArticleActivity extends Activity {
-	private Article a = null;
-	DatabaseHelper db = Clerk.getDatabase();
+	//DatabaseHelper db = Clerk.getDatabase();
+	private FlipViewController flipView;
 	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
-        Intent i = getIntent();
-        
-        String[] title = {i.getStringExtra("title")};
-        
-        a = db.readArticle(title);
-        
-		Log.d("Database", "Title " + a.title); // Title
-		Log.d("Database", "Author " + a.author);
-		Log.d("Database", "Category" + a.categories);
-		Log.d("Database", "Content " + a.content);
+	String title = null;
+	String author = null;
+	String content = null;
+	int published = 0;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		flipView = new FlipViewController(this, FlipViewController.VERTICAL);
+
+		Intent i = getIntent();
+		title = i.getStringExtra("title");
+		author = i.getStringExtra("author");
+		content = i.getStringExtra("content");
 		
-		Log.d("Database", "Date" + a.published);
-		Log.d("Database", "Unread" + a.unread);
-        
-        setContentView(R.layout.article);
-        
-        int number = 0;
-        
-        /*float ascent = 0;
-        float bottom = 0;
-        float descent = 0;
-        float leading = 0;
-        float top = 0;
-        
-        TextPaint ligature = new TextPaint();
-        FontMetrics font = ligature.getFontMetrics();*/
- 
-        TextView textTitle = (TextView) findViewById(R.id.textTitle);
-        WebView textContent = (WebView) findViewById(R.id.textContent);
-        //textContent.setMovementMethod(new ScrollingMovementMethod());
-        
-        Log.d("Article", Integer.toString(number));
-        //String email = i.getStringExtra("content");
- 
-        // Displaying Received data
-        textTitle.setText(a.title);
-        textContent.loadDataWithBaseURL(null, a.content, "text/html", "utf-8", null);
-        
- 
-    }
-    
-    public static class TextArticle extends TextView {
+		articleAdapter articleadapt = new articleAdapter(this, flipView, content);
 
-		private static Typeface tf = null;
+		flipView.setAdapter(articleadapt);
 
-		public TextArticle(Context context) {
-			super(context);
+		setContentView(flipView);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		flipView.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		flipView.onPause();
+	}
+
+	private static class articleAdapter extends BaseAdapter {
+
+		ArrayList<String> article = new ArrayList<String>();
+		FlipViewController controller;
+		Activity activity;
+		int activeLoadingCount = 0;
+
+		private articleAdapter(Activity activity, FlipViewController controller, String content) {
+			article.add(content);
+			article.add(content);
 			
-			String fontPath = "fonts" + '/' + "fontname" + ".ttf";
-		    tf = Typeface.createFromAsset(context.getAssets(), fontPath);
-			this.setTypeface(tf);
+			this.activity = activity;
+			this.controller = controller;
 		}
-    }
+
+		@Override
+		public int getCount() {
+			return article.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return article.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			WebView webView = new WebView(controller.getContext());
+			webView.setHorizontalScrollBarEnabled(false);
+			webView.setVerticalScrollBarEnabled(false);
+			
+			webView.setWebViewClient(new WebViewClient() {
+				@Override
+				public void onPageStarted(WebView view, String url, Bitmap favicon) {
+					activity.setProgressBarIndeterminateVisibility(true);
+					activeLoadingCount++;
+				}
+
+				@Override
+				public void onPageFinished(WebView view, String url) {
+					controller.refreshPage(view);
+					//This works as the webView is the view for a page. Please use refreshPage(int pageIndex) if the webview is only a part of page view.
+
+					activeLoadingCount--;
+					activity.setProgressBarIndeterminateVisibility(activeLoadingCount == 0);
+				}
+			});
+
+			webView.setWebChromeClient(new WebChromeClient() {
+				private int lastRefreshProgress = 0;
+
+				@Override
+				public void onProgressChanged(WebView view, int newProgress) {
+					if (newProgress - lastRefreshProgress > 20) { //limit the invocation frequency of refreshPage
+						controller.refreshPage(view);
+						lastRefreshProgress = newProgress;
+					}
+				}
+			});
+			
+			//String css = "<style>@font-face {font-family: 'MyCustomFont';src: url('/assets/fonts/MaycustomFont.ttf') }; * {font-family: 'Custom';}</style>";
+			
+			webView.loadDataWithBaseURL("file:///android_asset/", article.get(position), "text/html", "utf-8", null);
+
+			return webView;
+		}
+	}
 }

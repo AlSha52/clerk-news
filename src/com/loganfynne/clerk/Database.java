@@ -1,5 +1,6 @@
 package com.loganfynne.clerk;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.json.JSONObject;
@@ -8,14 +9,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.provider.BaseColumns;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
-public class Database extends AsyncTask<String, Void, Collection<String>> {
+public class Database extends AsyncTask<String, Void, Collection<Article>> {
 	Context context;
 	JSONObject articles = null;
-	ArrayAdapter<String> adapter = null;
+	FeedAdapter adapter = null;
 	
-    public Database(Context mContext, JSONObject mArticles, ArrayAdapter<String> mAdapter) {
+    public Database(Context mContext, JSONObject mArticles, FeedAdapter mAdapter) {
     	context = mContext;
     	articles = mArticles;
     	adapter = mAdapter;
@@ -27,7 +27,7 @@ public class Database extends AsyncTask<String, Void, Collection<String>> {
     }
     
     @Override
-    protected Collection<String> doInBackground(String... arg0) {
+    protected Collection<Article> doInBackground(String... arg0) {
     	DatabaseHelper DbHelper = DatabaseHelper.getInstance(context);
     	
     	if (articles != null) {
@@ -35,23 +35,16 @@ public class Database extends AsyncTask<String, Void, Collection<String>> {
             Log.d("Database","Wrote Articles!");
     	}
     	
-        Collection<String> titles = DbHelper.readTitles();
-        
-        for (String t : titles) {
-        	Log.d("titles", t);
-        }
+        ArrayList<Article> articl = DbHelper.readArticles();
+        Log.d("Size", Integer.toString(articl.size()));
     	
-    	return titles;
+    	return articl;
     }
     
 	@Override
-	protected void onPostExecute(Collection<String> titles) {
-		
-		Log.d("Database","onPostExecute");
+	protected void onPostExecute(Collection<Article> articl) {
 		adapter.clear();
-		
-		adapter.addAll(titles);
-		
+		adapter.addAll(articl);
 		adapter.notifyDataSetChanged();
 	}
 }

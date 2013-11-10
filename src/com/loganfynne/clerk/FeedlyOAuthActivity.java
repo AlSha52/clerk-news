@@ -19,6 +19,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -43,12 +44,6 @@ public class FeedlyOAuthActivity extends Activity {
 	static WebView webview;
 
 	private static String convertStreamToString(InputStream is) {
-		/*
-		 * To convert the InputStream to String we use the BufferedReader.readLine()
-		 * method. We iterate until the BufferedReader return null which means
-		 * there's no more data to read. Each line will appended to a StringBuilder
-		 * and returned as String.
-		 */
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 
@@ -92,9 +87,7 @@ public class FeedlyOAuthActivity extends Activity {
 				nameValuePairs.add(new BasicNameValuePair("state", "clerk"));
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-				// Execute HTTP Post Request
-				//ResponseHandler<String> responseHandler = new BasicResponseHandler();
-				HttpResponse responseBody = httpclient.execute(httppost); //, responseHandler);
+				HttpResponse responseBody = httpclient.execute(httppost);
 				HttpEntity entity = responseBody.getEntity();
 				InputStream is = entity.getContent();
 				response = new JSONObject(convertStreamToString(is));
@@ -116,6 +109,7 @@ public class FeedlyOAuthActivity extends Activity {
 		}
 	}
 
+	@SuppressLint("SetJavaScriptEnabled")
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);

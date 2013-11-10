@@ -19,7 +19,6 @@ package com.aphidmobile.flip;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -39,8 +38,6 @@ import android.widget.AdapterView;
 import com.aphidmobile.utils.AphidLog;
 
 import junit.framework.Assert;
-
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 
 public class FlipViewController extends AdapterView<Adapter> {
@@ -109,7 +106,7 @@ public class FlipViewController extends AdapterView<Adapter> {
   private Bitmap.Config animationBitmapFormat = Bitmap.Config.ARGB_8888;
 
   public FlipViewController(Context context) {
-    this(context, VERTICAL);
+    this(context, HORIZONTAL);
   }
 
   public FlipViewController(Context context, int flipOrientation) {
@@ -120,47 +117,8 @@ public class FlipViewController extends AdapterView<Adapter> {
   public FlipViewController(Context context, AttributeSet attrs, int defStyle) throws IllegalArgumentException, IllegalAccessException {
     super(context, attrs, defStyle);
 
-    int orientation = VERTICAL;
-    int[] attrArray = null;
-    Field[] fields = null;
-    
-	try {
-		fields = Class.forName(getContext().getPackageName() + ".R$styleable" ).getFields();
-	} catch (ClassNotFoundException e) {
-		e.printStackTrace();
-	}
-
-        //browse all fields
-    for (Field f : fields) {
-        //pick matching field
-        if (f.getName().equals("com_facebook_profile_picture_view")) {
-            //return as int array
-         	attrArray = (int[])f.get(null);
-        }
-    }
-
-	TypedArray a = context.getTheme().obtainStyledAttributes(attrArray);
-
-    try {
-      //int value = a.getInteger(R.styleable.FlipViewController_orientation, VERTICAL);
-      //if (value == HORIZONTAL) {
-      
-      //}
-
-      //int value = a.getInteger(R.styleable.FlipViewController_animationBitmapFormat, 0);
-      //if (value == 1) {
-      //  setAnimationBitmapFormat(Bitmap.Config.ARGB_4444);
-      //} else if (value == 2) {
-      
-      //} else {
-      //  setAnimationBitmapFormat(Bitmap.Config.ARGB_8888);
-      //}
-      
-          orientation = HORIZONTAL;
-          setAnimationBitmapFormat(Bitmap.Config.ARGB_8888);
-    } finally {
-      a.recycle();
-    }
+    int orientation = HORIZONTAL;
+    setAnimationBitmapFormat(Bitmap.Config.ARGB_8888);
 
     init(context, orientation);
   }

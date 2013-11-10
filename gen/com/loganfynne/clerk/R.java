@@ -34,10 +34,7 @@ public final class R {
         public static final int orientation=0x7f010000;
     }
     public static final class drawable {
-        public static final int action_search=0x7f020000;
-        public static final int drawer_shadow=0x7f020001;
-        public static final int ic_drawer=0x7f020002;
-        public static final int ic_launcher=0x7f020003;
+        public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
         public static final int ARGB_4444=0x7f040003;
@@ -52,8 +49,10 @@ public final class R {
         public static final int horizontal=0x7f040001;
         public static final int ok=0x7f040007;
         public static final int progress=0x7f04000d;
+        public static final int second=0x7f040010;
         public static final int textContent=0x7f04000b;
         public static final int textTitle=0x7f040009;
+        public static final int title=0x7f04000f;
         public static final int vertical=0x7f040000;
     }
     public static final class layout {
@@ -63,6 +62,8 @@ public final class R {
         public static final int article_view=0x7f030003;
         public static final int auth_view=0x7f030004;
         public static final int drawer_list_item=0x7f030005;
+        public static final int list=0x7f030006;
+        public static final int listitem=0x7f030007;
     }
     public static final class menu {
         public static final int main=0x7f070000;

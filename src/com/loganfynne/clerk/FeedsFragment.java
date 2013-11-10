@@ -10,20 +10,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 public class FeedsFragment extends ListFragment {
-	public static final String ARG_DRAWER_NUMBER = "drawer_number";
-	//private String[] url = {"http://www.engadget.com/rss.xml", "http://www.theverge.com/rss/frontpage", "http://planet.mozilla.org/atom.xml"};
 	DatabaseHelper dh = Clerk.getDatabase();
 	//private ArrayList<String> url = dh.readSources();
-	private ArrayList<String> titles = new ArrayList<String>();
+	private ArrayList<Article> articles = new ArrayList<Article>();
 	Context context;
 
-	private static ArrayAdapter<String> adapter = null;
+	private static FeedAdapter adapter = null;
 
 	public FeedsFragment() {
 	}
@@ -46,9 +43,15 @@ public class FeedsFragment extends ListFragment {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Intent toArticle = new Intent(view.getContext(), ArticleActivity.class);
 
-				String selected = (String) (getListView().getItemAtPosition(position));
+				Article selected = (Article) (getListView().getItemAtPosition(position));
 
-				toArticle.putExtra("title", selected);
+				Bundle extras = new Bundle();
+				extras.putString("title", selected.title);
+				extras.putString("author", selected.author);
+				extras.putString("content", selected.content);
+				extras.putInt("published", selected.published);
+				
+				toArticle.putExtras(extras);
 
 				startActivity(toArticle);
 			}
@@ -57,18 +60,19 @@ public class FeedsFragment extends ListFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		adapter = new ArrayAdapter<String>(inflater.getContext(), android.R.layout.simple_list_item_1, titles);
+		adapter = new FeedAdapter(inflater.getContext(), articles);
+		setListAdapter(adapter);
+		
 		Bundle bundle = this.getArguments();
 		String access = bundle.getString("access");
 		String url = bundle.getString("url");
-		String id = bundle.getString("id");
+		//String id = bundle.getString("userid");
 
 		//new Database(context, null, adapter).execute();
-		//new xmlParse(Clerk.getInstance(), adapter).execute(url);
-		new FeedlyActions.getStream(url, access, id, Clerk.getInstance(), adapter).execute();
-
-		setListAdapter(adapter);
-
-		return super.onCreateView(inflater, container, savedInstanceState);
+		new FeedlyActions.getStream(url, access, "feed/http://www.theverge.com/rss/full.xml", Clerk.getInstance(), adapter).execute();
+		
+		View view = inflater.inflate(R.layout.list, container, false);
+		return view;
+		//return super.onCreateView(inflater, container, savedInstanceState);
 	}
 }

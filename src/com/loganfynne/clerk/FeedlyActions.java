@@ -20,17 +20,10 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 public class FeedlyActions {
 
 	private static String convertStreamToString(InputStream is) {
-		/*
-		 * To convert the InputStream to String we use the BufferedReader.readLine()
-		 * method. We iterate until the BufferedReader return null which means
-		 * there's no more data to read. Each line will appended to a StringBuilder
-		 * and returned as String.
-		 */
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 
@@ -145,9 +138,9 @@ public class FeedlyActions {
 		String access;
 		String id;
 		Context context;
-		ArrayAdapter<String> adapter;
+		FeedAdapter adapter;
 
-		public getStream (String mUrl, String mAccess, String mId, Context mContext, ArrayAdapter<String> mAdapter) {
+		public getStream (String mUrl, String mAccess, String mId, Context mContext, FeedAdapter mAdapter) {
 			url = mUrl;
 			access = mAccess;
 			id = mId;
@@ -161,7 +154,6 @@ public class FeedlyActions {
 			HttpGet httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id);
 			httpget.setHeader("Authorization", access);
 			
-			Log.d("id", id);
 			HttpResponse response;
 			try {
 				response = httpclient.execute(httpget);
@@ -233,16 +225,16 @@ public class FeedlyActions {
 		
 		protected void onPostExecute(JSONArray result) {
 			if (result != null) {
-				JSONObject j = null;
+				//JSONObject j = null;
 				//String id;
 				//Long timestamp;
 				
 				for (int i = 0; i < result.length(); i++) {
-					try {
-						j = result.getJSONObject(i);
+					//try {
+						//j = result.getJSONObject(i);
 						//id = j.getString("id");
 						//timestamp = j.getLong("updated");
-					} catch (JSONException e) {}
+					//} catch (JSONException e) {}
 				}
 			}
 		}

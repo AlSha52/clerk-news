@@ -28,6 +28,11 @@
             </intent-filter>
         </activity>
         
+        <service
+            android:name="com.loganfynne.clerk.AuthDatabase"
+            android:label="AuthDatabase">
+        </service> 
+        
         <activity android:name=".ArticleActivity"></activity>
         <activity android:name=".FeedlyOAuthActivity"></activity>
         

@@ -15,7 +15,6 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-	// If you change the database schema, you must increment the database version.
 	public static final int DATABASE_VERSION = 1;
 	public static final String DATABASE_NAME = "Clerk.db";
 	private static DatabaseHelper sInstance = null;
@@ -29,17 +28,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			"CREATE TABLE IF NOT EXISTS " + ArticleEntry.TABLE_NAME + " (" +
 					ArticleEntry._ID + " INTEGER PRIMARY KEY," +
 					ArticleEntry.COLUMN_NAME_TITLE + TEXT_TYPE + "," +
-					ArticleEntry.COLUMN_NAME_CATEGORIES + TEXT_TYPE + "," +
 					ArticleEntry.COLUMN_NAME_AUTHOR + TEXT_TYPE + "," +
 					ArticleEntry.COLUMN_NAME_CONTENT + TEXT_TYPE + "," +
-					ArticleEntry.COLUMN_NAME_DATE + INT_TYPE + "," +
+					ArticleEntry.COLUMN_NAME_PUBLISHED + INT_TYPE + "," +
 					ArticleEntry.COLUMN_NAME_UNREAD + INT_TYPE +
 					" );";
 
 	private static final String SQL_CREATE_AUTHENTICATION = 
 			"CREATE TABLE IF NOT EXISTS " + AuthEntry.TABLE_NAME + "(" +
 					AuthEntry._ID + " INTEGER PRIMARY KEY," +
-					AuthEntry.COLUMN_NAME_REFRESH + TEXT_TYPE + ");";
+					AuthEntry.COLUMN_NAME_REFRESH + TEXT_TYPE + "," +
+					AuthEntry.COLUMN_NAME_USERID + TEXT_TYPE + ");";
 
 	private static final String SQL_DELETE_ARTICLES = 
 			"DELETE FROM " + ArticleEntry.TABLE_NAME + " WHERE id IN (";
@@ -74,9 +73,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values;
 		String title = null;
 		String author = null;
-		JSONArray categories;
-		JSONObject c;
-		String label = null;
+		//JSONArray categories;
+		//JSONObject c;
+		//String label = null;
 		boolean unread = false;
 		Long published = null;
 		
@@ -89,19 +88,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				
 				published = j.getLong("published");
 				unread = j.optBoolean("unread");
-				categories = j.getJSONArray("categories");
+				//categories = j.getJSONArray("categories");
 
-				for (int y = 0; y < categories.length(); y++) {
+				/*for (int y = 0; y < categories.length(); y++) {
 					c = categories.getJSONObject(y);
 					label = c.getString("label");
-				}
+				}*/
 				
 				values = new ContentValues();
 				values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
-				values.put(ArticleEntry.COLUMN_NAME_CATEGORIES, label);
 				values.put(ArticleEntry.COLUMN_NAME_AUTHOR, author);
 				values.put(ArticleEntry.COLUMN_NAME_CONTENT, j.getJSONObject("content").getString("content"));
-				values.put(ArticleEntry.COLUMN_NAME_DATE, published);
+				values.put(ArticleEntry.COLUMN_NAME_PUBLISHED, published);
 				values.put(ArticleEntry.COLUMN_NAME_UNREAD, ((unread)? 1 : 0));
 				writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
 			}
@@ -129,18 +127,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return titles;
 	}
 
-	public Article readArticle(String[] title) {
-		Article article = null;
+	public ArrayList<Article> readArticles() {
+		ArrayList<Article> articles = new ArrayList<Article>();
+		Article article;
 
-		Cursor c = readDB.rawQuery("select * from " + ArticleEntry.TABLE_NAME + " where title = ? ", title);
+		Cursor c = readDB.rawQuery("select * from " + ArticleEntry.TABLE_NAME, null);
 		c.moveToFirst();
 		while (!c.isAfterLast()) {
 			article = cursorToArticle(c);
+			Log.d("Article", article.toString());
+			articles.add(article);
 			c.moveToNext();
 		}
 		c.close();
 
-		return article;
+		return articles;
 	}
 
 	private Article cursorToArticle(Cursor c) {
@@ -150,39 +151,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.d("Database", "Content " + c.getString(4));
 		Log.d("Database", "Published " + Long.toString(c.getInt(1)));
 		Log.d("Database", "Unread " + Integer.toString(c.getInt(2)));
-
-		return new Article(c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getInt(1), c.getInt(2));
+		return new Article(c.getString(1), c.getString(2), c.getString(3), c.getInt(1), c.getInt(2));
 	}
 
 	public static abstract class ArticleEntry implements BaseColumns {
 		public static final String TABLE_NAME = "articles";
 
 		public static final String COLUMN_NAME_TITLE = "title";
-		public static final String COLUMN_NAME_DATE = "date";
-		public static final String COLUMN_NAME_CATEGORIES = "categories";
+		public static final String COLUMN_NAME_PUBLISHED = "published";
 		public static final String COLUMN_NAME_AUTHOR = "author";
 		public static final String COLUMN_NAME_CONTENT = "content";
 		public static final String COLUMN_NAME_UNREAD = "unread";
 	}
 
 	public static abstract class AuthEntry implements BaseColumns {
-		public static final String COLUMN_NAME_REFRESH = "refresh";
 		public static final String TABLE_NAME = "authentication";
+		
+		public static final String COLUMN_NAME_REFRESH = "refresh";
+		public static final String COLUMN_NAME_USERID = "userid";
 	}
 
-	public void writeToken(String refresh) {
+	public void writeToken(String refresh, String userid) {
 		ContentValues values = new ContentValues();
 		values.put(AuthEntry.COLUMN_NAME_REFRESH, refresh);
+		values.put(AuthEntry.COLUMN_NAME_USERID, userid);
 		writeDB.insert(AuthEntry.TABLE_NAME, null, values);
 	}
 
-	public String readToken() {
-		String token = null;
+	public String[] readToken() {
+		String[] token = {"",""};
 
 		Cursor c = readDB.rawQuery("select * from " + AuthEntry.TABLE_NAME, null);
 		c.moveToFirst();
 		while (!c.isAfterLast()) {
-			token = c.getString(1);
+			token[0] = c.getString(1);
+			token[1] = c.getString(2);
 			c.moveToNext();
 		}
 		c.close();
