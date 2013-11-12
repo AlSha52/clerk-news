@@ -135,7 +135,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		c.moveToFirst();
 		while (!c.isAfterLast()) {
 			article = cursorToArticle(c);
-			Log.d("Article", article.toString());
 			articles.add(article);
 			c.moveToNext();
 		}
@@ -145,12 +144,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	private Article cursorToArticle(Cursor c) {
-		Log.d("Database", "Title " + c.getString(1));
-		Log.d("Database", "Category " + c.getString(2));
-		Log.d("Database", "Author " + c.getString(3));
-		Log.d("Database", "Content " + c.getString(4));
-		Log.d("Database", "Published " + Long.toString(c.getInt(1)));
-		Log.d("Database", "Unread " + Integer.toString(c.getInt(2)));
 		return new Article(c.getString(1), c.getString(2), c.getString(3), c.getInt(1), c.getInt(2));
 	}
 
@@ -173,6 +166,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	public void writeToken(String refresh, String userid) {
 		ContentValues values = new ContentValues();
+		Log.d("Writing", "refresh" + refresh + " userid " + userid);
 		values.put(AuthEntry.COLUMN_NAME_REFRESH, refresh);
 		values.put(AuthEntry.COLUMN_NAME_USERID, userid);
 		writeDB.insert(AuthEntry.TABLE_NAME, null, values);
@@ -182,10 +176,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		String[] token = {"",""};
 
 		Cursor c = readDB.rawQuery("select * from " + AuthEntry.TABLE_NAME, null);
+		
+		Log.d("Database", "readToken");
 		c.moveToFirst();
+		//token[0] = c.getString(1);
+		//token[1] = c.getString(2);
+		//Log.d("token0","token" + token[0]);
+		//Log.d("token1", "token" + token[1]);
 		while (!c.isAfterLast()) {
 			token[0] = c.getString(1);
 			token[1] = c.getString(2);
+			Log.d("token0","token" + token[0]);
+			Log.d("token1", "token" + token[1]);
 			c.moveToNext();
 		}
 		c.close();

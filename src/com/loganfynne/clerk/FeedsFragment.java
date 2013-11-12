@@ -68,7 +68,6 @@ public class FeedsFragment extends ListFragment {
 		String url = bundle.getString("url");
 		//String id = bundle.getString("userid");
 
-		//new Database(context, null, adapter).execute();
 		new FeedlyActions.getStream(url, access, "feed/http://www.theverge.com/rss/full.xml", Clerk.getInstance(), adapter).execute();
 		
 		View view = inflater.inflate(R.layout.list, container, false);

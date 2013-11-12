@@ -1,6 +1,5 @@
 package com.loganfynne.clerk;
 
-//import com.loganfynne.clerk.AuthDatabase.OAuthStarter;
 import com.loganfynne.clerk.AuthDatabase.authBinder;
 
 import android.app.Activity;
@@ -16,7 +15,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-public class ClerkActivity extends Activity { //implements OAuthStarter {
+public class ClerkActivity extends Activity {
 	String access = null;
 	String refresh = null;
 	String userId = null;
@@ -24,14 +23,26 @@ public class ClerkActivity extends Activity { //implements OAuthStarter {
 	String url = "http://sandbox.feedly.com";
 	AuthDatabase mService;
 	boolean mBound = false;
+	boolean started = false;
+	boolean received = false;
 	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-        	if (intent.getStringExtra("") != null) {
-        		
+        	if (!received) {
+        		startOAuth();
+        		received = true;
         	}
-        	//updateUI(intent);       
+        }
+    };
+    
+    private BroadcastReceiver broadcastReceiverTwo = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	Log.d("Received!","Received everything!");
+        	access = intent.getStringExtra("access");
+        	userId = intent.getStringExtra("userid");
+        	onAccessToken();
         }
     };
 
@@ -39,34 +50,47 @@ public class ClerkActivity extends Activity { //implements OAuthStarter {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Log.d("ClerkActivity","onCreate");
-		registerReceiver(broadcastReceiver, new IntentFilter("com.loganfynne.clerk.AuthCall"));
-		//startOAuth();
+		Log.d("Clerk","onCreate");
+		
+		IntentFilter filter = new IntentFilter("com.loganfynne.clerk.AuthCall");
+		this.registerReceiver(broadcastReceiver, filter);
+		
+		IntentFilter filterTwo = new IntentFilter("com.loganfynne.clerk.AuthFinished");
+		this.registerReceiver(broadcastReceiverTwo, filterTwo);
+		
+		if (!started) {
+			Intent servei = new Intent(this, AuthDatabase.class);
+			if (access != null) {
+				servei.putExtra("access", access);
+			}
+			bindService(servei, mConnection, Context.BIND_AUTO_CREATE);
+			startService(servei);
+			started = true;
+		}
 	}
 	
 	@Override
-    protected void onStart() {
+	protected void onStart() {
         super.onStart();
-        Log.d("ClerkActivity","onStart");
-        Intent servei = new Intent(this, AuthDatabase.class);
-		bindService(servei, mConnection, Context.BIND_AUTO_CREATE);
-    }
+        
+        if (!mBound) {
+        	Intent servei = new Intent(this, AuthDatabase.class);
+            bindService(servei, mConnection, Context.BIND_AUTO_CREATE);
+            mBound = true;
+        }
+	}
 	
 	private ServiceConnection mConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-
             authBinder binder = (authBinder) service;
             mService = binder.getService();
+            Log.d("Clerk","Bound");
             mBound = true;
-            //mService.setServiceClient(ClerkActivity.this);
-            //onAccessToken(mService.getAccess(),mService.getUser());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-        	//mService.setServiceClient(null);
             mBound = false;
         }
     };
@@ -75,29 +99,29 @@ public class ClerkActivity extends Activity { //implements OAuthStarter {
     	Intent feedi = new Intent(this, FeedlyOAuthActivity.class);
 		startActivityForResult(feedi, 0);
     }
-	
-	public void onAccessToken(String access, String userid) {
-		new FeedlyActions.getProfile(url, access).execute();
-		new FeedlyActions.addSubscription(url, access, userid).execute();
-		new FeedlyActions.getSubscriptions(url, access).execute();
+
+	public void onAccessToken() {
+		new FeedlyActions.addSubscription(url, access, userId).execute();
+		//new FeedlyActions.getSubscriptions(url, access).execute();
 		//new FeedlyActions.getCategories(url, access).execute();
+		Log.d("Clerk","onAccessToken()");
 		
 		Fragment fragment = new FeedsFragment();
 		Bundle bundle = new Bundle();
 		bundle.putString("access", access);
 		bundle.putString("url", url);
-		bundle.putString("userid", userid);
+		bundle.putString("userid", userId);
 		fragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		refresh = data.getStringExtra("refresh");
 		access = data.getStringExtra("access");
 		Log.d("access", access);
-		mService.setRefresh(data.getStringExtra("refresh"), data.getStringExtra("access"));
-		if (access != null) {
-			onAccessToken(access,null);
+		if (refresh != null && access != null) {
+			mService.setRefresh(refresh, access);
 		} else {
 			Intent intent = new Intent(this, FeedlyOAuthActivity.class);
 			startActivityForResult(intent, 0);
@@ -107,7 +131,17 @@ public class ClerkActivity extends Activity { //implements OAuthStarter {
 	@Override
 	protected void onStop() {
         super.onStop();
-
+        
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+	}
+	
+	@Override
+	protected void onPause() {
+        super.onPause();
+        
         if (mBound) {
             unbindService(mConnection);
             mBound = false;

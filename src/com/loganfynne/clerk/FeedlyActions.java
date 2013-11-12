@@ -31,7 +31,6 @@ public class FeedlyActions {
 		try {
 			while ((line = reader.readLine()) != null) {
 				sb.append(line);
-				Log.d("line", line);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -162,7 +161,6 @@ public class FeedlyActions {
 				if (entity != null) {
 					InputStream instream = entity.getContent();
 					String jsonstring = convertStreamToString(instream);
-					Log.d("json", jsonstring);
 					JSONObject result = new JSONObject(jsonstring);
 					return result;
 				}

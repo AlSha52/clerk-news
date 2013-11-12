@@ -99,6 +99,7 @@ public class FeedlyOAuthActivity extends Activity {
 
 		protected void onPostExecute(JSONObject response) {
 			try {
+				
 				Intent resultIntent = new Intent();
 				resultIntent.putExtra("access", response.getString("access_token"));
 				resultIntent.putExtra("refresh", response.getString("refresh_token"));
