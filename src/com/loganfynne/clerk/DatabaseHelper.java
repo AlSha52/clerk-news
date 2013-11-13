@@ -136,6 +136,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	public void deleteArticle(String entryId) {
+		Log.d("Deleting!",entryId);
 		writeDB.delete(ArticleEntry.TABLE_NAME, ArticleEntry.COLUMN_NAME_ENTRYID + "=" + entryId, null);
 	}
 

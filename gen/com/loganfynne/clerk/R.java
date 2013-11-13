@@ -40,19 +40,20 @@ public final class R {
         public static final int ARGB_4444=0x7f040003;
         public static final int ARGB_8888=0x7f040002;
         public static final int RGB_565=0x7f040004;
-        public static final int authWeb=0x7f04000e;
+        public static final int authWeb=0x7f04000f;
         public static final int body=0x7f040006;
         public static final int cancel=0x7f040008;
         public static final int contentArticle=0x7f04000a;
         public static final int content_frame=0x7f040005;
-        public static final int flipView=0x7f04000c;
+        public static final int drawer_layout=0x7f04000c;
+        public static final int flipView=0x7f04000d;
         public static final int horizontal=0x7f040001;
         public static final int ok=0x7f040007;
-        public static final int progress=0x7f04000d;
-        public static final int second=0x7f040010;
+        public static final int progress=0x7f04000e;
+        public static final int second=0x7f040011;
         public static final int textContent=0x7f04000b;
         public static final int textTitle=0x7f040009;
-        public static final int title=0x7f04000f;
+        public static final int title=0x7f040010;
         public static final int vertical=0x7f040000;
     }
     public static final class layout {

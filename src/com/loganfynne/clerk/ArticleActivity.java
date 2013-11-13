@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
@@ -91,11 +92,18 @@ public class ArticleActivity extends Activity {
 		}
 
 		private articleAdapter(Activity activity, FlipViewController controller, String content) {
-			Spanned text = Html.fromHtml(content);
-			content = text.toString();
-			String[] pages = splitStringEvery(content, 900);
+			//Spanned text = Html.fromHtml(content);
+			
+			/*String first = image + content.substring(0,375);
+			content = content.substring(375,content.length());
+			content = text.toString();*/
+			String[] pages = splitStringEvery(content, 700);
 			for (int x=0; x < pages.length; x++) {
-				page.add(pages[x]);
+				/*if (x == 0) {
+					page.add(first);
+				} else {*/
+					page.add(pages[x]);
+				//}
 			}
 			
 			this.activity = activity;
@@ -153,20 +161,15 @@ public class ArticleActivity extends Activity {
 				}
 			});
 			
-			/*Pattern p = Pattern.compile("<.*?>");
-			Matcher m = p.matcher(content);
-			
-			while (m.find()) {
-				Log.d("pattern",m.group());
-			}*/
-			
 			//content = content.replace("[<](/)?img[^>]*[>]","");
 			
-			String css = "<style>" + 
+			String css =
+				"<style>" + 
 					"@font-face {font-family: 'Tisa'; src:url('fonts/TisaOT.otf');}" + 
-					"*{font-family: Tisa;}" + 
-					"html, body {width:96%; padding:0 2% 0 2% !important; margin: 0 0 0 0 !important; font-size: 1em;}" +
-					"</style>";
+					"*{font-family: Tisa; color:rgb(24,24,24); background-color:rgb(247,247,247);}" + 
+					"img {text-align:center; margin: 0 auto 0 auto !important;}" +
+					"html, body {width:96%; padding:0 2% 0 2% !important; margin: 0 0 0 0 !important; font-size: 1.05em !important;}" +
+				"</style>";
 			
 			webView.loadDataWithBaseURL("file:///android_asset/", css + page.get(position), "text/html", "utf-8", null);
 
