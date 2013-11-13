@@ -87,33 +87,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		boolean unread = false;
 		Long published = null;
 		for (int x = 0; x < articles.size(); x++) {
+			JSONArray items = null;
+			String content = null;
 			try {
-				JSONArray items = articles.get(x).getJSONArray("items");
+				items = articles.get(x).getJSONArray("items");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 				for (int i = 0; i < items.length(); i++) {
-					j = items.getJSONObject(i);
-					title = j.getString("title");
-					author = j.getString("author");
+					try {
+						j = items.getJSONObject(i);
+						title = j.getString("title");
+						author = j.getString("author");
 
-					published = j.getLong("published");
-					unread = j.optBoolean("unread");
+						published = j.getLong("published");
+						unread = j.optBoolean("unread");
+					} catch (JSONException e) {}
+					
+					try {
+						content = j.getJSONObject("content").getString("content");
+					} catch (JSONException e) {
+						try {
+							Log.d("Clerk",j.toString(4));
+							content = j.getJSONObject("content").getString("summary");
+						} catch (JSONException e1) {
+							content = "";
+						}
+					}
 					//categories = j.getJSONArray("categories");
 
 					/*for (int y = 0; y < categories.length(); y++) {
 					c = categories.getJSONObject(y);
 					label = c.getString("label");
 				}*/
-					values = new ContentValues();
-					values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
-					values.put(ArticleEntry.COLUMN_NAME_AUTHOR, author);
-					values.put(ArticleEntry.COLUMN_NAME_CONTENT, j.getJSONObject("content").getString("content"));
-					values.put(ArticleEntry.COLUMN_NAME_PUBLISHED, published);
-					values.put(ArticleEntry.COLUMN_NAME_UNREAD, ((unread)? 1 : 0));
-					writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
+					if (content != "") {
+						values = new ContentValues();
+						values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
+						values.put(ArticleEntry.COLUMN_NAME_AUTHOR, author);
+						values.put(ArticleEntry.COLUMN_NAME_CONTENT, content);
+						values.put(ArticleEntry.COLUMN_NAME_PUBLISHED, published);
+						values.put(ArticleEntry.COLUMN_NAME_UNREAD, ((unread)? 1 : 0));
+						writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
+					}
 
 				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

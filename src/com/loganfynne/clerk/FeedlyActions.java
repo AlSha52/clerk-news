@@ -192,7 +192,6 @@ public class FeedlyActions {
 			}
 			if (last == true) {
 				new Database(context, jsonarticles, adapter).execute();
-				jsonarticles.clear();
 			}
 		}
 	}
