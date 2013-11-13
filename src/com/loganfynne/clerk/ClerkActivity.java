@@ -98,8 +98,6 @@ public class ClerkActivity extends Activity {
     }
 
 	public void onAccessToken() {
-		new FeedlyActions.addSubscription(url, access, userId).execute();
-		
 		Fragment fragment = new FeedsFragment();
 		Bundle bundle = new Bundle();
 		bundle.putString("access", access);

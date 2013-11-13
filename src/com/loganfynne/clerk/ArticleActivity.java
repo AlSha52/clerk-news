@@ -2,13 +2,16 @@ package com.loganfynne.clerk;
 
 import java.util.ArrayList;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import com.aphidmobile.flip.FlipViewController;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +26,8 @@ public class ArticleActivity extends Activity {
 	private FlipViewController flipView;
 	DatabaseHelper dh = DatabaseHelper.getInstance(Clerk.getInstance());
 	
-	String title = null;
-	String author = null;
+	static String title = null;
+	static String author = null;
 	static String content = null;
 	String entryid = null;
 	int published = 0;
@@ -83,7 +86,11 @@ public class ArticleActivity extends Activity {
 		    int j = 0;
 		    int lastIndex = result.length - 1;
 		    for (int i = 0; i < lastIndex; i++) {
-		        result[i] = s.substring(j, j + interval);
+		    	if (i == 0) {
+		    		result[i] = s.substring(j, j + 1200);
+		    	} else {
+		    		result[i] = s.substring(j, j + interval);
+		    	}
 		        j += interval;
 		    } //Add the last bit
 		    result[lastIndex] = s.substring(j);
@@ -92,6 +99,30 @@ public class ArticleActivity extends Activity {
 		}
 
 		private articleAdapter(Activity activity, FlipViewController controller, String content) {
+			Document doc = Jsoup.parse(content, "UTF-8");
+			
+			Elements first_image = doc.select("img[src]");
+			
+			Element titlehead = doc.createElement("h1");
+			titlehead.html(ArticleActivity.title);
+			titlehead.attr("style","position:absolute; right:10px; top:-5px; height:170px; width:215px; font-size:1.15em;");
+			
+			if (first_image.size() > 0) {
+				first_image.first().attr("style", "float:left; margin:30px 0 0 -1.5%; border-radius:999px; background: url(" + first_image.first().attr("src") + ") center center; width:120px; height:120px;");
+				first_image.first().tagName("div");
+				first_image.first().after(titlehead);
+				titlehead.after("<div style=\"clear:both; margin-top:0px; margin-bottom:30px;\"></div>");
+			} else {
+				doc.children().first().before(titlehead);
+				titlehead.after("<div style=\"clear:both; margin-top:185px; margin-bottom:30px;\"></div>");
+			}
+			
+			doc.select("a[href*=feedburner.com").remove();
+			
+			content = doc.toString();
+			
+			Log.d("Content",content);
+			
 			//Spanned text = Html.fromHtml(content);
 			
 			/*String first = image + content.substring(0,375);
@@ -99,11 +130,7 @@ public class ArticleActivity extends Activity {
 			content = text.toString();*/
 			String[] pages = splitStringEvery(content, 700);
 			for (int x=0; x < pages.length; x++) {
-				/*if (x == 0) {
-					page.add(first);
-				} else {*/
-					page.add(pages[x]);
-				//}
+				page.add(pages[x]);
 			}
 			
 			this.activity = activity;
@@ -160,8 +187,6 @@ public class ArticleActivity extends Activity {
 					}
 				}
 			});
-			
-			//content = content.replace("[<](/)?img[^>]*[>]","");
 			
 			String css =
 				"<style>" + 

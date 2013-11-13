@@ -156,6 +156,6 @@ public class FeedlyOAuthActivity extends Activity {
 		});
 
 		webview.loadUrl("http://sandbox.feedly.com/v3/auth/auth?client_id=" + clientId + "&redirect_uri=" + redirectUri + 
-				"&response_type=code" + "&scope=" + scope + "&provider=google");
+				"&response_type=code" + "&scope=" + scope);
 	}
 }

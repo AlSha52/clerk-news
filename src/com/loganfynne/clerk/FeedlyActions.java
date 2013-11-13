@@ -158,9 +158,9 @@ public class FeedlyActions {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget;
 			//if (timestamp == 0) {
-				httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&unreadOnly=true");
+				//httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&unreadOnly=true");
 			//} //else {
-				//httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&newerThan=" + Long.toString(timestamp) + "&unreadOnly=true");
+			httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&newerThan=" + Long.toString(timestamp) + "&unreadOnly=true");
 		//	}
 			httpget.setHeader("Authorization", access);
 			
@@ -209,6 +209,10 @@ public class FeedlyActions {
 			access = mAccess;
 			adapter = mAdapter;
 		}
+		
+		protected void onPreExecute() {
+			new Database(context, null, adapter).execute();
+		}
 
 		protected JSONArray doInBackground(String... urls) {
 			
@@ -249,6 +253,7 @@ public class FeedlyActions {
 				ArrayList<String[]> subs = dh.readSubscription();
 				if (subs.isEmpty()) {
 					timestamp = 0;
+					new FeedlyActions.addSubscription(url, access, userId).execute();
 				}
 				
 				for (int i = 0; i < result.length(); i++) {
@@ -373,15 +378,17 @@ public class FeedlyActions {
 
 			try {
 				// Add your data
-				String jsonData = "{\"id\": \"feed/https://medium.com/feed/@kylry/\",\"title\": \"Kyle Ryan on Medium\",\"categories\": [{" +
-						"\"id\": \"user/" + userid + "/category/design\"," +
-						"\"label\": \"design\"}]}";
+				String jsonData = "{" + 
+						"\"id\": \"feed/https://medium.com/feed/@kylry/\", " + 
+						"\"title\": \"Kyle Ryan on Medium\", " + 
+						"\"categories\": [{" +
+							"\"id\": \"user/" + userid + "/category/design\", " +
+							"\"label\": \"design\"" +
+						"}]}";
 				StringEntity stringentity = new StringEntity(jsonData);
 				httppost.setEntity(stringentity);
 
-				// Execute HTTP Post Request
-				//ResponseHandler<String> responseHandler = new BasicResponseHandler();
-				HttpResponse responseBody = httpclient.execute(httppost); //, responseHandler);
+				HttpResponse responseBody = httpclient.execute(httppost);
 				HttpEntity entity = responseBody.getEntity();
 				InputStream is = entity.getContent();
 				response = new JSONObject(convertStreamToString(is));
@@ -394,6 +401,11 @@ public class FeedlyActions {
 
 		protected void onPostExecute(JSONObject result) {
 			if (result != null) {
+				try {
+					Log.d("Subscribe","response"+result.toString(4));
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

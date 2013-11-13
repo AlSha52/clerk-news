@@ -109,7 +109,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					} catch (JSONException e) {
 						try {
 							Log.d("Clerk",j.toString(4));
-							content = j.getJSONObject("content").getString("summary");
+							content = j.getJSONObject("summary").getString("content");
 						} catch (JSONException e1) {
 							content = "";
 						}
