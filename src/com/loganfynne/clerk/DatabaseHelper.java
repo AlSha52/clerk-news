@@ -39,6 +39,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					AuthEntry._ID + " INTEGER PRIMARY KEY," +
 					AuthEntry.COLUMN_NAME_REFRESH + TEXT_TYPE + "," +
 					AuthEntry.COLUMN_NAME_USERID + TEXT_TYPE + ");";
+	
+	private static final String SQL_CREATE_SUBSCRIPTION = 
+			"CREATE TABLE IF NOT EXISTS " + SubscriptionEntry.TABLE_NAME + "(" +
+					SubscriptionEntry._ID + " INTEGER PRIMARY KEY," +
+					SubscriptionEntry.COLUMN_NAME_TITLE + TEXT_TYPE + "," +
+					SubscriptionEntry.COLUMN_NAME_TIMESTAMP + TEXT_TYPE + "," +
+					SubscriptionEntry.COLUMN_NAME_FEEDID + TEXT_TYPE + ");";
 
 	private static final String SQL_DELETE_ARTICLES = 
 			"DELETE FROM " + ArticleEntry.TABLE_NAME + " WHERE id IN (";
@@ -58,6 +65,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(SQL_CREATE_ARTICLES);
 		db.execSQL(SQL_CREATE_AUTHENTICATION);
+		db.execSQL(SQL_CREATE_SUBSCRIPTION);
 	}
 
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -68,7 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		onUpgrade(db, oldVersion, newVersion);
 	}
 
-	public void writeArticles(JSONObject articles) {
+	public void writeArticles(ArrayList<JSONObject> articles) {
 		JSONObject j = null;
 		ContentValues values;
 		String title = null;
@@ -78,33 +86,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		//String label = null;
 		boolean unread = false;
 		Long published = null;
-		
-		try {
-			JSONArray items = articles.getJSONArray("items");
-			for (int i = 0; i < items.length(); i++) {
-				j = items.getJSONObject(i);
-				title = j.getString("title");
-				author = j.getString("author");
-				
-				published = j.getLong("published");
-				unread = j.optBoolean("unread");
-				//categories = j.getJSONArray("categories");
+		for (int x = 0; x < articles.size(); x++) {
+			try {
+				JSONArray items = articles.get(x).getJSONArray("items");
+				for (int i = 0; i < items.length(); i++) {
+					j = items.getJSONObject(i);
+					title = j.getString("title");
+					author = j.getString("author");
 
-				/*for (int y = 0; y < categories.length(); y++) {
+					published = j.getLong("published");
+					unread = j.optBoolean("unread");
+					//categories = j.getJSONArray("categories");
+
+					/*for (int y = 0; y < categories.length(); y++) {
 					c = categories.getJSONObject(y);
 					label = c.getString("label");
 				}*/
-				
-				values = new ContentValues();
-				values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
-				values.put(ArticleEntry.COLUMN_NAME_AUTHOR, author);
-				values.put(ArticleEntry.COLUMN_NAME_CONTENT, j.getJSONObject("content").getString("content"));
-				values.put(ArticleEntry.COLUMN_NAME_PUBLISHED, published);
-				values.put(ArticleEntry.COLUMN_NAME_UNREAD, ((unread)? 1 : 0));
-				writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
+					values = new ContentValues();
+					values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
+					values.put(ArticleEntry.COLUMN_NAME_AUTHOR, author);
+					values.put(ArticleEntry.COLUMN_NAME_CONTENT, j.getJSONObject("content").getString("content"));
+					values.put(ArticleEntry.COLUMN_NAME_PUBLISHED, published);
+					values.put(ArticleEntry.COLUMN_NAME_UNREAD, ((unread)? 1 : 0));
+					writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
+
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -163,7 +172,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		public static final String COLUMN_NAME_REFRESH = "refresh";
 		public static final String COLUMN_NAME_USERID = "userid";
 	}
-
+	
+	public static abstract class SubscriptionEntry implements BaseColumns {
+		public static final String TABLE_NAME = "subscriptions";
+		
+		public static final String COLUMN_NAME_TITLE = "title";
+		public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+		public static final String COLUMN_NAME_FEEDID = "feedid";
+	}
+	
+	public void writeSubscription(String title, Long timestamp, String feedid) {
+		ContentValues values = new ContentValues();
+		Log.d("Writing", "subscription" + title);
+		values.put(SubscriptionEntry.COLUMN_NAME_TITLE, title);
+		values.put(SubscriptionEntry.COLUMN_NAME_TIMESTAMP, Long.toString(timestamp));
+		values.put(SubscriptionEntry.COLUMN_NAME_FEEDID, feedid);
+		writeDB.insert(SubscriptionEntry.TABLE_NAME, null, values);
+	}
+	
+	public ArrayList<String[]> readSubscription() {
+		ArrayList<String[]> sub = new ArrayList<String[]>();
+		String[] newsub = {"","",""};
+		
+		Cursor c = readDB.rawQuery("select * from " + SubscriptionEntry.TABLE_NAME, null);
+		c.moveToFirst();
+		while (!c.isAfterLast()) {
+			newsub[0] = c.getString(1);
+			newsub[1] = c.getString(2);
+			newsub[2] = c.getString(3);
+			sub.add(newsub);
+			c.moveToNext();
+		}
+		c.close();
+		
+		return sub;
+	}
+	
 	public void writeToken(String refresh, String userid) {
 		ContentValues values = new ContentValues();
 		Log.d("Writing", "refresh" + refresh + " userid " + userid);
@@ -191,6 +235,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			c.moveToNext();
 		}
 		c.close();
+		
+		Log.d("Clerk","No break");
 
 		return token;
 	}

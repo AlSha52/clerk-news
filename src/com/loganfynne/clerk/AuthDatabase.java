@@ -35,17 +35,14 @@ public class AuthDatabase extends Service {
 	String access = null;
 	String user = null;
 	boolean finished = false;
+	boolean post = false;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.d("Clerk", "onStartCommand");
 		access = intent.getStringExtra("access");
 		refresh = intent.getStringExtra("refresh");
 		if (access != null && access != "" && refresh != null && refresh != "") {
 			new getProfile(refresh, access).execute();
-		}
-		if (user != null) {
-			Log.d("User", "user " + user);
 		}
 		
 		new authTask(this, refresh, user).execute();
@@ -59,7 +56,6 @@ public class AuthDatabase extends Service {
 	
 	public class authBinder extends Binder {
 		AuthDatabase getService() {
-			Log.d("Clerk","Service gotten");
 			return AuthDatabase.this;
 	    }
 	}
@@ -96,17 +92,16 @@ public class AuthDatabase extends Service {
 			if (this.mRefresh != null && this.mUserId != null) {
 				DbHelper.writeToken(this.mRefresh, this.mUserId);
 				finished = true;
-				Log.d("Refresh", "Wrote refresh!");
 			} else if (this.mRefresh == null && this.mUserId == null) {
-				Log.d("Refresh","Get token!");
 				token = DbHelper.readToken();
+				Log.d("Clerk","Got out of dbhelper");
+				Log.d("Clerk","token0 = " + token[0]);
+				Log.d("Clerk","token1 = " + token[1]);
 				if (token[0] != null && token[0] != "" && token[1] != null && token[1] != "") {
-					finished = true;
+					Log.d("Clerk","post is true");
+					post = true;
 				}
-				Log.d("Token", "Tokens" + token[0] + token[1]);
 				return token;
-			} else {
-				Log.d("Clerk","One is null, other is not.");
 			}
 
 			return null;
@@ -114,22 +109,18 @@ public class AuthDatabase extends Service {
 
 		@Override
 		protected void onPostExecute(String[] token) {
-			Log.d("Token","Token");
 			if (finished == false) {
-				Log.d("Token","finished not false");
-				if (token[0] != "" && token[1] != "" && access != null && access != "") {
-					Log.d("Token","token[0] is also not null");
-					Log.d("Token", token[0]);
-					Log.d("Token", token[1]);
+				if (post) {
+					Log.d("Clerk","About to post token");
+					refresh = token[0];
 					user = token[1];
-					new postToken(refresh).execute();
+					new postToken().execute();
 				} else {
-					Log.d("Token","Called webview");
 					Intent intent = new Intent("com.loganfynne.clerk.AuthCall");
 					me.sendBroadcast(intent);
 				}
 			} else {
-				Log.d("Finished","Sending to Auth Finished!");
+				Log.d("Finished","finihsed");
 				Intent intent = new Intent("com.loganfynne.clerk.AuthFinished");
 				intent.putExtra("access", access);
 				intent.putExtra("userid", user);
@@ -163,12 +154,10 @@ public class AuthDatabase extends Service {
 
 
 	public class postToken extends AsyncTask<String, Void, JSONObject> {
-		String refresh;
 		public String clientId = "sandbox";
 		public String clientSecret = "Z5ZSFRASVWCV3EFATRUY";
 
-		public postToken (String mRefresh) {
-			refresh = mRefresh;
+		public postToken () {
 		}
 
 		protected JSONObject doInBackground(String... urls) {
@@ -181,13 +170,15 @@ public class AuthDatabase extends Service {
 				nameValuePairs.add(new BasicNameValuePair("client_id", clientId));
 				nameValuePairs.add(new BasicNameValuePair("client_secret", clientSecret));
 				nameValuePairs.add(new BasicNameValuePair("refresh_token", refresh));
-				nameValuePairs.add(new BasicNameValuePair("grant_type", "authorization_code"));
+				nameValuePairs.add(new BasicNameValuePair("grant_type", "refresh_token"));
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
 				HttpResponse responseBody = httpclient.execute(httppost);
 				HttpEntity entity = responseBody.getEntity();
 				InputStream is = entity.getContent();
-				response = new JSONObject(convertStreamToString(is));
+				String json = convertStreamToString(is);
+				Log.d("Clerk", json);
+				response = new JSONObject(json);
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -200,11 +191,14 @@ public class AuthDatabase extends Service {
 		}
 
 		protected void onPostExecute(JSONObject response) {
+			Log.d("Clerk","Inside postexecute");
 			if (response != null) {
 				String access_token = null;
 				try {
 					access_token = response.getString("access_token");
+					Log.d("post","access" + access_token);
 					access = access_token;
+					
 					Intent intent = new Intent("com.loganfynne.clerk.AuthFinished");
 					intent.putExtra("access", access);
 					intent.putExtra("userid", user);
@@ -229,7 +223,6 @@ public class AuthDatabase extends Service {
 
 			HttpResponse response;
 			try {
-				Log.d("HTTP","About to execute request");
 				response = httpclient.execute(httpget);
 				Log.d("HTTP", response.getStatusLine().toString());
 				HttpEntity entity = response.getEntity();
@@ -251,11 +244,9 @@ public class AuthDatabase extends Service {
 		}
 
 		protected void onPostExecute(JSONObject result) {
-			Log.d("Trying","result");
 			if (result != null) {
 				try {
 					user = result.getString("id");
-					Log.d("Refresh","Refresh" + refresh);
 					new authTask(getBaseContext(), refresh, user).execute();
 				} catch (JSONException e) {
 					e.printStackTrace();

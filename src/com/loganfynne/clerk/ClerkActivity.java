@@ -25,6 +25,8 @@ public class ClerkActivity extends Activity {
 	boolean mBound = false;
 	boolean started = false;
 	boolean received = false;
+	IntentFilter filter = new IntentFilter("com.loganfynne.clerk.AuthCall");
+	IntentFilter filterTwo = new IntentFilter("com.loganfynne.clerk.AuthFinished");
 	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -39,7 +41,6 @@ public class ClerkActivity extends Activity {
     private BroadcastReceiver broadcastReceiverTwo = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-        	Log.d("Received!","Received everything!");
         	access = intent.getStringExtra("access");
         	userId = intent.getStringExtra("userid");
         	onAccessToken();
@@ -50,12 +51,9 @@ public class ClerkActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Log.d("Clerk","onCreate");
 		
-		IntentFilter filter = new IntentFilter("com.loganfynne.clerk.AuthCall");
 		this.registerReceiver(broadcastReceiver, filter);
 		
-		IntentFilter filterTwo = new IntentFilter("com.loganfynne.clerk.AuthFinished");
 		this.registerReceiver(broadcastReceiverTwo, filterTwo);
 		
 		if (!started) {
@@ -85,7 +83,6 @@ public class ClerkActivity extends Activity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             authBinder binder = (authBinder) service;
             mService = binder.getService();
-            Log.d("Clerk","Bound");
             mBound = true;
         }
 
@@ -102,13 +99,12 @@ public class ClerkActivity extends Activity {
 
 	public void onAccessToken() {
 		new FeedlyActions.addSubscription(url, access, userId).execute();
-		//new FeedlyActions.getSubscriptions(url, access).execute();
 		//new FeedlyActions.getCategories(url, access).execute();
-		Log.d("Clerk","onAccessToken()");
 		
 		Fragment fragment = new FeedsFragment();
 		Bundle bundle = new Bundle();
 		bundle.putString("access", access);
+		Log.d("access",access);
 		bundle.putString("url", url);
 		bundle.putString("userid", userId);
 		fragment.setArguments(bundle);
@@ -119,7 +115,6 @@ public class ClerkActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		refresh = data.getStringExtra("refresh");
 		access = data.getStringExtra("access");
-		Log.d("access", access);
 		if (refresh != null && access != null) {
 			mService.setRefresh(refresh, access);
 		} else {
@@ -139,9 +134,18 @@ public class ClerkActivity extends Activity {
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		this.registerReceiver(broadcastReceiver, filter);
+		this.registerReceiver(broadcastReceiverTwo, filterTwo);
+	}
+	
+	@Override
 	protected void onPause() {
         super.onPause();
         
+        this.unregisterReceiver(broadcastReceiver);
+        this.unregisterReceiver(broadcastReceiverTwo);
         if (mBound) {
             unbindService(mConnection);
             mBound = false;

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -22,6 +23,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class FeedlyActions {
+	static ArrayList<JSONObject> jsonarticles = new ArrayList<JSONObject>();
 
 	private static String convertStreamToString(InputStream is) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -138,19 +140,28 @@ public class FeedlyActions {
 		String id;
 		Context context;
 		FeedAdapter adapter;
+		long timestamp;
+		boolean last;
 
-		public getStream (String mUrl, String mAccess, String mId, Context mContext, FeedAdapter mAdapter) {
+		public getStream (String mUrl, String mAccess, String mId, Context mContext, FeedAdapter mAdapter, long mTimestamp, boolean mLast) {
 			url = mUrl;
 			access = mAccess;
 			id = mId;
 			context = mContext;
 			adapter = mAdapter;
+			timestamp = mTimestamp;
+			last = mLast;
 		}
 
 		protected JSONObject doInBackground(String... urls) {
 			
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpGet httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id);
+			HttpGet httpget;
+			if (timestamp == 0) {
+				httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&unreadOnly=true");
+			} else {
+				httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&newerThan=" + Long.toString(timestamp) + "&unreadOnly=true");
+			}
 			httpget.setHeader("Authorization", access);
 			
 			HttpResponse response;
@@ -177,19 +188,27 @@ public class FeedlyActions {
 		
 		protected void onPostExecute(JSONObject result) {
 			if (result != null) {
-				new Database(context, result, adapter).execute();
+				jsonarticles.add(result);
+			}
+			if (last == true) {
+				new Database(context, jsonarticles, adapter).execute();
+				jsonarticles.clear();
 			}
 		}
 	}
 	
 	
 	public static class getSubscriptions extends AsyncTask<String, Void, JSONArray> {
+		Context context;
 		String url;
 		String access;
+		FeedAdapter adapter;
 
-		public getSubscriptions (String mUrl, String mAccess) {
+		public getSubscriptions (Context mContext, String mUrl, String mAccess, FeedAdapter mAdapter) {
+			context = mContext;
 			url = mUrl;
 			access = mAccess;
+			adapter = mAdapter;
 		}
 
 		protected JSONArray doInBackground(String... urls) {
@@ -223,16 +242,34 @@ public class FeedlyActions {
 		
 		protected void onPostExecute(JSONArray result) {
 			if (result != null) {
-				//JSONObject j = null;
-				//String id;
-				//Long timestamp;
-				
-				for (int i = 0; i < result.length(); i++) {
-					//try {
-						//j = result.getJSONObject(i);
-						//id = j.getString("id");
-						//timestamp = j.getLong("updated");
-					//} catch (JSONException e) {}
+				JSONObject j = null;
+				String id;
+				long timestamp;
+				boolean last = false;
+				DatabaseHelper dh = Clerk.getDatabase();
+				ArrayList<String[]> subs = dh.readSubscription();
+				for (String[] s : subs) {
+					Log.d("subs",s[0]);
+				}
+				if (subs.isEmpty()) {
+					timestamp = 0;
+				} else {
+					for (int i = 0; i < result.length(); i++) {
+						try {
+							if (i == (result.length()-1)) {
+								last = true;
+							}
+							j = result.getJSONObject(i);
+							id = j.getString("id");
+							timestamp = j.getLong("updated");
+							Log.d("Subscriptions","jsonobject " +j.toString());
+							Log.d("Subscriptions","Id " + id);
+							Log.d("Subscriptions","Long " + Long.toString(timestamp));
+							new getStream(url, access, id, context, adapter, timestamp, last).execute();
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 			}
 		}

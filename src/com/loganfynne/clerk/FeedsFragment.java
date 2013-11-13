@@ -66,12 +66,10 @@ public class FeedsFragment extends ListFragment {
 		Bundle bundle = this.getArguments();
 		String access = bundle.getString("access");
 		String url = bundle.getString("url");
-		//String id = bundle.getString("userid");
 
-		new FeedlyActions.getStream(url, access, "feed/http://www.theverge.com/rss/full.xml", Clerk.getInstance(), adapter).execute();
+		new FeedlyActions.getSubscriptions(Clerk.getInstance(), url, access, adapter).execute();
 		
 		View view = inflater.inflate(R.layout.list, container, false);
 		return view;
-		//return super.onCreateView(inflater, container, savedInstanceState);
 	}
 }
