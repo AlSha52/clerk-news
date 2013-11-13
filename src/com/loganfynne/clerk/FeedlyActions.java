@@ -157,11 +157,11 @@ public class FeedlyActions {
 			
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget;
-			if (timestamp == 0) {
+			//if (timestamp == 0) {
 				httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&unreadOnly=true");
-			} else {
-				httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&newerThan=" + Long.toString(timestamp) + "&unreadOnly=true");
-			}
+			//} //else {
+				//httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&newerThan=" + Long.toString(timestamp) + "&unreadOnly=true");
+		//	}
 			httpget.setHeader("Authorization", access);
 			
 			HttpResponse response;

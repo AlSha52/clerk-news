@@ -6,7 +6,6 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,14 +51,14 @@ public class FeedsFragment extends ListFragment {
 				extras.putString("title", selected.title);
 				extras.putString("author", selected.author);
 				extras.putString("content", selected.content);
-				extras.putString("entryid", selected.entryId);
+				extras.putString("entryid", selected.entryid);
 				extras.putInt("published", selected.published);
 				
 				toArticle.putExtras(extras);
 
 				startActivity(toArticle);
 				
-				new FeedlyActions.postMarkers(url, access, selected.entryId).execute();
+				new FeedlyActions.postMarkers(url, access, selected.entryid).execute();
 			}
 		});
 	}
@@ -72,8 +71,6 @@ public class FeedsFragment extends ListFragment {
 		Bundle bundle = this.getArguments();
 		access = bundle.getString("access");
 		url = bundle.getString("url");
-		
-		Log.d("Clerk","feedfragment" + access);
 
 		new FeedlyActions.getSubscriptions(Clerk.getInstance(), url, access, adapter).execute();
 		

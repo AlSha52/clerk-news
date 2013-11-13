@@ -4,16 +4,16 @@ public class Article {
     public final String title;
     public final String author;
     public String content;
-    public String entryId;
+    public String entryid;
     
     public int published;
 	public int unread;
     
-    Article(String title, String author, String content, String entryId, int published, int unread) {
+    Article(String title, String author, String content, String entryid, int published, int unread) {
         this.title = title;
         this.author = author;
         this.content = content;
-        this.entryId = entryId;
+        this.entryid = entryid;
         
         this.published = published;
         this.unread = unread;

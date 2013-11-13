@@ -219,6 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			newsub[0] = c.getString(1);
 			newsub[1] = c.getString(2);
 			newsub[2] = c.getString(3);
+			Log.d("Clerk", "Sub " + newsub[0] + " " + newsub[1] + " " + newsub[2]);
 			sub.add(newsub);
 			c.moveToNext();
 		}

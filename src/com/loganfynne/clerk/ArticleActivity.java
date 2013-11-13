@@ -18,11 +18,12 @@ import android.graphics.Bitmap;
 public class ArticleActivity extends Activity {
 	//DatabaseHelper db = Clerk.getDatabase();
 	private FlipViewController flipView;
+	DatabaseHelper dh = DatabaseHelper.getInstance(Clerk.getInstance());
 	
 	String title = null;
 	String author = null;
 	String content = null;
-	String entryId = null;
+	String entryid = null;
 	int published = 0;
 
 	@Override
@@ -35,7 +36,7 @@ public class ArticleActivity extends Activity {
 		title = i.getStringExtra("title");
 		author = i.getStringExtra("author");
 		content = i.getStringExtra("content");
-		entryId = i.getStringExtra("entryid");
+		entryid = i.getStringExtra("entryid");
 		
 		articleAdapter articleadapt = new articleAdapter(this, flipView, content);
 
@@ -47,8 +48,8 @@ public class ArticleActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		DatabaseHelper dh = DatabaseHelper.getInstance(Clerk.getInstance());
-		dh.deleteArticle(entryId);
+		
+		dh.deleteArticle(entryid);
 	}
 	
 	@Override
@@ -61,20 +62,20 @@ public class ArticleActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 		flipView.onPause();
-		DatabaseHelper dh = DatabaseHelper.getInstance(Clerk.getInstance());
-		dh.deleteArticle(entryId);
+		
+		dh.deleteArticle(entryid);
 	}
 
 	private static class articleAdapter extends BaseAdapter {
 
-		ArrayList<String> article = new ArrayList<String>();
+		ArrayList<String> page = new ArrayList<String>();
 		FlipViewController controller;
 		Activity activity;
 		int activeLoadingCount = 0;
 
 		private articleAdapter(Activity activity, FlipViewController controller, String content) {
-			article.add(content);
-			article.add(content);
+			page.add(content);
+			page.add(content);
 			
 			this.activity = activity;
 			this.controller = controller;
@@ -82,12 +83,12 @@ public class ArticleActivity extends Activity {
 
 		@Override
 		public int getCount() {
-			return article.size();
+			return page.size();
 		}
 
 		@Override
 		public Object getItem(int position) {
-			return article.get(position);
+			return page.get(position);
 		}
 
 		@Override
@@ -100,6 +101,7 @@ public class ArticleActivity extends Activity {
 			WebView webView = new WebView(controller.getContext());
 			webView.setHorizontalScrollBarEnabled(false);
 			webView.setVerticalScrollBarEnabled(false);
+			webView.setPadding(0, 0, 0, 0);
 			
 			webView.setWebViewClient(new WebViewClient() {
 				@Override
@@ -130,9 +132,11 @@ public class ArticleActivity extends Activity {
 				}
 			});
 			
-			//String css = "<style>@font-face {font-family: 'MyCustomFont';src: url('/assets/fonts/MaycustomFont.ttf') }; * {font-family: 'Custom';}</style>";
+			String css = "<style>@font-face {font-family: 'MyCustomFont';src: url('/assets/fonts/MaycustomFont.ttf') }; * {font-family: 'Custom';}" + 
+					"html, body { font-family: ''; width:98%; padding:0 1% 0 1% !important; margin: 0 0 0 0 !important; }" +
+					"</style>";
 			
-			webView.loadDataWithBaseURL("file:///android_asset/", article.get(position), "text/html", "utf-8", null);
+			webView.loadDataWithBaseURL("file:///android_asset/", css + page.get(position), "text/html", "utf-8", null);
 
 			return webView;
 		}
