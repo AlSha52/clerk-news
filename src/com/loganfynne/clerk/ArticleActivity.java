@@ -22,6 +22,7 @@ public class ArticleActivity extends Activity {
 	String title = null;
 	String author = null;
 	String content = null;
+	String entryId = null;
 	int published = 0;
 
 	@Override
@@ -34,12 +35,20 @@ public class ArticleActivity extends Activity {
 		title = i.getStringExtra("title");
 		author = i.getStringExtra("author");
 		content = i.getStringExtra("content");
+		entryId = i.getStringExtra("entryid");
 		
 		articleAdapter articleadapt = new articleAdapter(this, flipView, content);
 
 		flipView.setAdapter(articleadapt);
 
 		setContentView(flipView);
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		DatabaseHelper dh = DatabaseHelper.getInstance(Clerk.getInstance());
+		dh.deleteArticle(entryId);
 	}
 	
 	@Override
@@ -52,6 +61,8 @@ public class ArticleActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 		flipView.onPause();
+		DatabaseHelper dh = DatabaseHelper.getInstance(Clerk.getInstance());
+		dh.deleteArticle(entryId);
 	}
 
 	private static class articleAdapter extends BaseAdapter {

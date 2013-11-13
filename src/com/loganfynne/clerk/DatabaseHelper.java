@@ -31,6 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					ArticleEntry.COLUMN_NAME_AUTHOR + TEXT_TYPE + "," +
 					ArticleEntry.COLUMN_NAME_CONTENT + TEXT_TYPE + "," +
 					ArticleEntry.COLUMN_NAME_PUBLISHED + INT_TYPE + "," +
+					ArticleEntry.COLUMN_NAME_ENTRYID + TEXT_TYPE + "," +
 					ArticleEntry.COLUMN_NAME_UNREAD + INT_TYPE +
 					" );";
 
@@ -46,9 +47,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					SubscriptionEntry.COLUMN_NAME_TITLE + TEXT_TYPE + "," +
 					SubscriptionEntry.COLUMN_NAME_TIMESTAMP + TEXT_TYPE + "," +
 					SubscriptionEntry.COLUMN_NAME_FEEDID + TEXT_TYPE + ");";
-
-	private static final String SQL_DELETE_ARTICLES = 
-			"DELETE FROM " + ArticleEntry.TABLE_NAME + " WHERE id IN (";
 
 	public static DatabaseHelper getInstance(Context context) {
 		if (sInstance == null) {
@@ -81,6 +79,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values;
 		String title = null;
 		String author = null;
+		String id = null;
 		//JSONArray categories;
 		//JSONObject c;
 		//String label = null;
@@ -99,6 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 						j = items.getJSONObject(i);
 						title = j.getString("title");
 						author = j.getString("author");
+						id = j.getString("id");
 
 						published = j.getLong("published");
 						unread = j.optBoolean("unread");
@@ -125,6 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 						values.put(ArticleEntry.COLUMN_NAME_TITLE, title);
 						values.put(ArticleEntry.COLUMN_NAME_AUTHOR, author);
 						values.put(ArticleEntry.COLUMN_NAME_CONTENT, content);
+						values.put(ArticleEntry.COLUMN_NAME_ENTRYID, id);
 						values.put(ArticleEntry.COLUMN_NAME_PUBLISHED, published);
 						values.put(ArticleEntry.COLUMN_NAME_UNREAD, ((unread)? 1 : 0));
 						writeDB.insert(ArticleEntry.TABLE_NAME, null, values);
@@ -134,8 +135,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public void deleteArticles(String list) {
-		writeDB.execSQL(SQL_DELETE_ARTICLES + list + ");");
+	public void deleteArticle(String entryId) {
+		writeDB.delete(ArticleEntry.TABLE_NAME, ArticleEntry.COLUMN_NAME_ENTRYID + "=" + entryId, null);
 	}
 
 	public ArrayList<String> readTitles() {
@@ -170,7 +171,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	private Article cursorToArticle(Cursor c) {
-		return new Article(c.getString(1), c.getString(2), c.getString(3), c.getInt(1), c.getInt(2));
+		return new Article(c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getInt(1), c.getInt(2));
 	}
 
 	public static abstract class ArticleEntry implements BaseColumns {
@@ -180,6 +181,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		public static final String COLUMN_NAME_PUBLISHED = "published";
 		public static final String COLUMN_NAME_AUTHOR = "author";
 		public static final String COLUMN_NAME_CONTENT = "content";
+		public static final String COLUMN_NAME_ENTRYID = "entryid";
 		public static final String COLUMN_NAME_UNREAD = "unread";
 	}
 
@@ -240,10 +242,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		Log.d("Database", "readToken");
 		c.moveToFirst();
-		//token[0] = c.getString(1);
-		//token[1] = c.getString(2);
-		//Log.d("token0","token" + token[0]);
-		//Log.d("token1", "token" + token[1]);
 		while (!c.isAfterLast()) {
 			token[0] = c.getString(1);
 			token[1] = c.getString(2);

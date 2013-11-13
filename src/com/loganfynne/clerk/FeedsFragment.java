@@ -20,6 +20,8 @@ public class FeedsFragment extends ListFragment {
 	//private ArrayList<String> url = dh.readSources();
 	private ArrayList<Article> articles = new ArrayList<Article>();
 	Context context;
+	String access;
+	String url;
 
 	private static FeedAdapter adapter = null;
 
@@ -50,11 +52,14 @@ public class FeedsFragment extends ListFragment {
 				extras.putString("title", selected.title);
 				extras.putString("author", selected.author);
 				extras.putString("content", selected.content);
+				extras.putString("entryid", selected.entryId);
 				extras.putInt("published", selected.published);
 				
 				toArticle.putExtras(extras);
 
 				startActivity(toArticle);
+				
+				new FeedlyActions.postMarkers(url, access, selected.entryId).execute();
 			}
 		});
 	}
@@ -65,8 +70,8 @@ public class FeedsFragment extends ListFragment {
 		setListAdapter(adapter);
 		
 		Bundle bundle = this.getArguments();
-		String access = bundle.getString("access");
-		String url = bundle.getString("url");
+		access = bundle.getString("access");
+		url = bundle.getString("url");
 		
 		Log.d("Clerk","feedfragment" + access);
 

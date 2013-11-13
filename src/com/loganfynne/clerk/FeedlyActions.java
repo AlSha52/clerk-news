@@ -272,6 +272,49 @@ public class FeedlyActions {
 	}
 	
 	
+	public static class postMarkers extends AsyncTask<String, Void, JSONObject> {
+		String url;
+		String access;
+		String id;
+
+		public postMarkers (String mUrl, String mAccess, String mId) {
+			url = mUrl;
+			access = mAccess;
+			id = mId;
+		}
+		
+		protected JSONObject doInBackground(String... urls) {
+			JSONObject response = null;
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(url +"/v3/subscriptions");
+			httppost.setHeader("Authorization", access);
+
+			try {
+				String jsonData = "{\"\"action\": \"markAsRead\"," + 
+										"\"type\": \"entries\"," +
+										"\"entryIds\": \"" + id + "\"" +
+								  "}";
+				StringEntity stringentity = new StringEntity(jsonData);
+				httppost.setEntity(stringentity);
+
+				HttpResponse responseBody = httpclient.execute(httppost);
+				HttpEntity entity = responseBody.getEntity();
+				InputStream is = entity.getContent();
+				response = new JSONObject(convertStreamToString(is));
+				Log.d("subscribe", response.toString());
+
+			} catch (ClientProtocolException e) {} catch (IOException e) {} catch (JSONException e) {}
+
+			return response;
+		}
+
+		protected void onPostExecute(JSONObject result) {
+			if (result != null) {
+			}
+		}
+	}
+	
+	
 	public static class postCategory extends AsyncTask<String, Void, JSONObject> {
 		String url;
 		String access;
