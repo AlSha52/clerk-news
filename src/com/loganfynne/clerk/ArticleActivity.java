@@ -7,6 +7,8 @@ import com.aphidmobile.flip.FlipViewController;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
@@ -22,7 +24,7 @@ public class ArticleActivity extends Activity {
 	
 	String title = null;
 	String author = null;
-	String content = null;
+	static String content = null;
 	String entryid = null;
 	int published = 0;
 
@@ -72,10 +74,29 @@ public class ArticleActivity extends Activity {
 		FlipViewController controller;
 		Activity activity;
 		int activeLoadingCount = 0;
+		
+		public String[] splitStringEvery(String s, int interval) {
+		    int arrayLength = (int) Math.ceil(((s.length() / (double)interval)));
+		    String[] result = new String[arrayLength];
+
+		    int j = 0;
+		    int lastIndex = result.length - 1;
+		    for (int i = 0; i < lastIndex; i++) {
+		        result[i] = s.substring(j, j + interval);
+		        j += interval;
+		    } //Add the last bit
+		    result[lastIndex] = s.substring(j);
+
+		    return result;
+		}
 
 		private articleAdapter(Activity activity, FlipViewController controller, String content) {
-			page.add(content);
-			page.add(content);
+			Spanned text = Html.fromHtml(content);
+			content = text.toString();
+			String[] pages = splitStringEvery(content, 900);
+			for (int x=0; x < pages.length; x++) {
+				page.add(pages[x]);
+			}
 			
 			this.activity = activity;
 			this.controller = controller;
@@ -125,15 +146,26 @@ public class ArticleActivity extends Activity {
 
 				@Override
 				public void onProgressChanged(WebView view, int newProgress) {
-					if (newProgress - lastRefreshProgress > 20) { //limit the invocation frequency of refreshPage
+					if (newProgress - lastRefreshProgress > 20) {
 						controller.refreshPage(view);
 						lastRefreshProgress = newProgress;
 					}
 				}
 			});
 			
-			String css = "<style>@font-face {font-family: 'MyCustomFont';src: url('/assets/fonts/MaycustomFont.ttf') }; * {font-family: 'Custom';}" + 
-					"html, body { font-family: ''; width:98%; padding:0 1% 0 1% !important; margin: 0 0 0 0 !important; }" +
+			/*Pattern p = Pattern.compile("<.*?>");
+			Matcher m = p.matcher(content);
+			
+			while (m.find()) {
+				Log.d("pattern",m.group());
+			}*/
+			
+			//content = content.replace("[<](/)?img[^>]*[>]","");
+			
+			String css = "<style>" + 
+					"@font-face {font-family: 'Tisa'; src:url('fonts/TisaOT.otf');}" + 
+					"*{font-family: Tisa;}" + 
+					"html, body {width:96%; padding:0 2% 0 2% !important; margin: 0 0 0 0 !important; font-size: 1em;}" +
 					"</style>";
 			
 			webView.loadDataWithBaseURL("file:///android_asset/", css + page.get(position), "text/html", "utf-8", null);
