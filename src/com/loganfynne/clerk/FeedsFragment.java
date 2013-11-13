@@ -6,6 +6,7 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +67,8 @@ public class FeedsFragment extends ListFragment {
 		Bundle bundle = this.getArguments();
 		String access = bundle.getString("access");
 		String url = bundle.getString("url");
+		
+		Log.d("Clerk","feedfragment" + access);
 
 		new FeedlyActions.getSubscriptions(Clerk.getInstance(), url, access, adapter).execute();
 		

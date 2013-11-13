@@ -248,27 +248,24 @@ public class FeedlyActions {
 				boolean last = false;
 				DatabaseHelper dh = Clerk.getDatabase();
 				ArrayList<String[]> subs = dh.readSubscription();
-				for (String[] s : subs) {
-					Log.d("subs",s[0]);
-				}
 				if (subs.isEmpty()) {
 					timestamp = 0;
-				} else {
-					for (int i = 0; i < result.length(); i++) {
-						try {
-							if (i == (result.length()-1)) {
-								last = true;
-							}
-							j = result.getJSONObject(i);
-							id = j.getString("id");
-							timestamp = j.getLong("updated");
-							Log.d("Subscriptions","jsonobject " +j.toString());
-							Log.d("Subscriptions","Id " + id);
-							Log.d("Subscriptions","Long " + Long.toString(timestamp));
-							new getStream(url, access, id, context, adapter, timestamp, last).execute();
-						} catch (JSONException e) {
-							e.printStackTrace();
+				}
+				
+				for (int i = 0; i < result.length(); i++) {
+					try {
+						if (i == (result.length()-1)) {
+							last = true;
 						}
+						j = result.getJSONObject(i);
+						id = j.getString("id");
+						timestamp = j.getLong("updated");
+						Log.d("Subscriptions","jsonobject " +j.toString());
+						Log.d("Subscriptions","Id " + id);
+						Log.d("Subscriptions","Long " + Long.toString(timestamp));
+						new getStream(url, access, id, context, adapter, timestamp, last).execute();
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
 				}
 			}
