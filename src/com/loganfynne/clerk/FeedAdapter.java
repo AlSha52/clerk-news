@@ -3,11 +3,13 @@ package com.loganfynne.clerk;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 class FeedAdapter extends ArrayAdapter<Article> {
@@ -41,14 +43,14 @@ class FeedAdapter extends ArrayAdapter<Article> {
 		}
 
 		Article a = getItem(position);
-		//Bitmap bm = null;
+		//Bitmap bm = a.cover;
 
 		Log.d("Items", a.title + a.author + a.published);
 
 		//((ImageView) view.findViewById(R.id.cover)).setImageBitmap(bm);
 		((TextView) view.findViewById(R.id.title)).setText(a.title);
-		//((TextView) view.findViewById(R.id.second)).setText(a.author + " " + a.published);
-
+		Log.d("ListView",a.author + " " + a.published);
+		((TextView) view.findViewById(R.id.second)).setText(a.author);
 
 		return view;
 	}

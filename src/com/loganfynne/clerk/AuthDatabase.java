@@ -120,7 +120,6 @@ public class AuthDatabase extends Service {
 					me.sendBroadcast(intent);
 				}
 			} else {
-				Log.d("Finished","finihsed");
 				Intent intent = new Intent("com.loganfynne.clerk.AuthFinished");
 				intent.putExtra("access", access);
 				intent.putExtra("userid", user);
@@ -198,7 +197,6 @@ public class AuthDatabase extends Service {
 					access_token = response.getString("access_token");
 					Log.d("post","access" + access_token);
 					access = access_token;
-					
 					Intent intent = new Intent("com.loganfynne.clerk.AuthFinished");
 					intent.putExtra("access", access);
 					intent.putExtra("userid", user);
@@ -247,6 +245,8 @@ public class AuthDatabase extends Service {
 			if (result != null) {
 				try {
 					user = result.getString("id");
+					new FeedlyActions.addSubscription("http://sandbox.feedly.com", access, user, true).execute();
+					new FeedlyActions.addSubscription("http://sandbox.feedly.com", access, user, false).execute();
 					new authTask(getBaseContext(), refresh, user).execute();
 				} catch (JSONException e) {
 					e.printStackTrace();

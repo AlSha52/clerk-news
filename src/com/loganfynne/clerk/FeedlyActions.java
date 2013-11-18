@@ -158,9 +158,9 @@ public class FeedlyActions {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget;
 			//if (timestamp == 0) {
-				//httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&unreadOnly=true");
+			httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&unreadOnly=true");
 			//} //else {
-			httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&newerThan=" + Long.toString(timestamp) + "&unreadOnly=true");
+			//httpget = new HttpGet(url + "/v3/streams/contents?streamId=" + id + "&newerThan=" + Long.toString(timestamp) + "&unreadOnly=true");
 		//	}
 			httpget.setHeader("Authorization", access);
 			
@@ -201,12 +201,14 @@ public class FeedlyActions {
 		Context context;
 		String url;
 		String access;
+		String userid;
 		FeedAdapter adapter;
 
-		public getSubscriptions (Context mContext, String mUrl, String mAccess, FeedAdapter mAdapter) {
+		public getSubscriptions (Context mContext, String mUrl, String mAccess, String mUserId, FeedAdapter mAdapter) {
 			context = mContext;
 			url = mUrl;
 			access = mAccess;
+			userid = mUserId;
 			adapter = mAdapter;
 		}
 		
@@ -253,7 +255,7 @@ public class FeedlyActions {
 				ArrayList<String[]> subs = dh.readSubscription();
 				if (subs.isEmpty()) {
 					timestamp = 0;
-					new FeedlyActions.addSubscription(url, access, userId).execute();
+					Log.d("Database","Subscriptions were empty.");
 				}
 				
 				for (int i = 0; i < result.length(); i++) {
@@ -295,7 +297,7 @@ public class FeedlyActions {
 			httppost.setHeader("Authorization", access);
 
 			try {
-				String jsonData = "{\"\"action\": \"markAsRead\"," + 
+				String jsonData = "{\"action\": \"markAsRead\"," + 
 										"\"type\": \"entries\"," +
 										"\"entryIds\": \"" + id + "\"" +
 								  "}";
@@ -306,7 +308,7 @@ public class FeedlyActions {
 				HttpEntity entity = responseBody.getEntity();
 				InputStream is = entity.getContent();
 				response = new JSONObject(convertStreamToString(is));
-				Log.d("subscribe", response.toString());
+				Log.d("markers", response.toString());
 
 			} catch (ClientProtocolException e) {} catch (IOException e) {} catch (JSONException e) {}
 
@@ -315,6 +317,11 @@ public class FeedlyActions {
 
 		protected void onPostExecute(JSONObject result) {
 			if (result != null) {
+				try {
+					Log.d("Markers",result.toString(4));
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -338,7 +345,7 @@ public class FeedlyActions {
 			httppost.setHeader("Authorization", access);
 
 			try {
-				String jsonData = "{\"\"label\": \"" + label + "\"}";
+				String jsonData = "{\"label\": \"" + label + "\"}";
 				StringEntity stringentity = new StringEntity(jsonData);
 				httppost.setEntity(stringentity);
 
@@ -363,11 +370,13 @@ public class FeedlyActions {
 		String url;
 		String access;
 		String userid;
+		boolean first;
 
-		public addSubscription (String mUrl, String mAccess, String mUserId) {
+		public addSubscription (String mUrl, String mAccess, String mUserId, boolean mFirst) {
 			url = mUrl;
 			access = mAccess;
 			userid = mUserId;
+			first = mFirst;
 		}
 		
 		protected JSONObject doInBackground(String... urls) {
@@ -375,16 +384,21 @@ public class FeedlyActions {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(url +"/v3/subscriptions");
 			httppost.setHeader("Authorization", access);
+			String jsonData;
 
 			try {
 				// Add your data
-				String jsonData = "{" + 
-						"\"id\": \"feed/https://medium.com/feed/@kylry/\", " + 
-						"\"title\": \"Kyle Ryan on Medium\", " + 
-						"\"categories\": [{" +
-							"\"id\": \"user/" + userid + "/category/design\", " +
-							"\"label\": \"design\"" +
-						"}]}";
+				if (first) {
+					jsonData = "{" + 
+							"\"id\": \"feed/http://thenextweb.com/feed/\", " + 
+							"\"title\": \"The Next Web\", " + 
+							"\"categories\": []}";
+				} else {
+					jsonData = "{" + 
+							"\"id\": \"feed/http://feeds.feedburner.com/venturebeat/\", " + 
+							"\"title\": \"VentureBeat\", " + 
+							"\"categories\": []}";
+				}
 				StringEntity stringentity = new StringEntity(jsonData);
 				httppost.setEntity(stringentity);
 

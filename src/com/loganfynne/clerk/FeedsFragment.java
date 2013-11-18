@@ -21,6 +21,8 @@ public class FeedsFragment extends ListFragment {
 	Context context;
 	String access;
 	String url;
+	String userid;
+	boolean longtouch = false;
 
 	private static FeedAdapter adapter = null;
 
@@ -34,8 +36,14 @@ public class FeedsFragment extends ListFragment {
 		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 
 			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				Toast.makeText(getActivity(), "On long click listener", Toast.LENGTH_SHORT).show();
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long id) {
+				Article selected = (Article) (getListView().getItemAtPosition(position));
+				
+				new FeedlyActions.postMarkers(url, access, selected.entryid);
+				
+				Toast.makeText(getActivity(), "Marked as read", Toast.LENGTH_SHORT).show();
+				longtouch = true;
+				
 				return false;
 			}
 		});
@@ -43,22 +51,26 @@ public class FeedsFragment extends ListFragment {
 		getListView().setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Intent toArticle = new Intent(view.getContext(), ArticleActivity.class);
+				if (!longtouch) {
+					Intent toArticle = new Intent(view.getContext(), ArticleActivity.class);
 
-				Article selected = (Article) (getListView().getItemAtPosition(position));
+					Article selected = (Article) (getListView().getItemAtPosition(position));
 
-				Bundle extras = new Bundle();
-				extras.putString("title", selected.title);
-				extras.putString("author", selected.author);
-				extras.putString("content", selected.content);
-				extras.putString("entryid", selected.entryid);
-				extras.putInt("published", selected.published);
-				
-				toArticle.putExtras(extras);
+					Bundle extras = new Bundle();
+					extras.putString("title", selected.title);
+					extras.putString("author", selected.author);
+					extras.putString("content", selected.content);
+					extras.putString("entryid", selected.entryid);
+					extras.putInt("published", selected.published);
 
-				startActivity(toArticle);
-				
-				new FeedlyActions.postMarkers(url, access, selected.entryid).execute();
+					toArticle.putExtras(extras);
+
+					startActivity(toArticle);
+
+					new FeedlyActions.postMarkers(url, access, selected.entryid).execute();
+				} else {
+					longtouch = false;
+				}
 			}
 		});
 	}
@@ -70,9 +82,10 @@ public class FeedsFragment extends ListFragment {
 		
 		Bundle bundle = this.getArguments();
 		access = bundle.getString("access");
+		userid = bundle.getString("userid");
 		url = bundle.getString("url");
 
-		new FeedlyActions.getSubscriptions(Clerk.getInstance(), url, access, adapter).execute();
+		new FeedlyActions.getSubscriptions(Clerk.getInstance(), url, access, userid, adapter).execute();
 		
 		View view = inflater.inflate(R.layout.list, container, false);
 		return view;
