@@ -122,6 +122,22 @@ public class ArticleActivity extends Activity {
 		private articleAdapter(Activity activity, FlipViewController controller, String content) {
 			Document doc = Jsoup.parse(content, "UTF-8");
 			
+			String regex = "[0-9]+";
+			String imageW = null;
+			Elements image = doc.select("img[src]");
+			image.attr("style","");
+			for (int x = 1; x < image.size(); x++) {
+				imageW = image.get(x).attr("width").replace(regex,"");
+				Log.d("Article",imageW);
+				if (image.get(x).attr("width") != "") { 
+					Log.d("Article","Width has value");
+					/*if (Integer.parseInt(imageW) > width) {
+						Log.d("Article","Set width!");
+						image.get(x).attr("style",image.attr("style") + "width: 90% !important;height: auto !important;margin-right:auto;margin-left:auto;");
+					}*/
+				}
+			}
+			
 			Elements first_image = doc.select("img[src]");
 			
 			Element titlehead = doc.createElement("h1");
@@ -143,12 +159,7 @@ public class ArticleActivity extends Activity {
 			content = doc.toString();
 			
 			Log.d("Content",content);
-			
-			//Spanned text = Html.fromHtml(content);
-			
-			/*String first = image + content.substring(0,375);
-			content = content.substring(375,content.length());
-			content = text.toString();*/
+
 			page = splitStringEvery(content, 700);
 			
 			this.activity = activity;
