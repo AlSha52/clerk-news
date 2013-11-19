@@ -31,7 +31,7 @@ public class ArticleActivity extends Activity {
 	static String content = null;
 	String entryid = null;
 	int published = 0;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
