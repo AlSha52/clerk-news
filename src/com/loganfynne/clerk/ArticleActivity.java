@@ -11,6 +11,7 @@ import com.aphidmobile.flip.FlipViewController;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -174,6 +175,15 @@ public class ArticleActivity extends Activity {
 					activeLoadingCount--;
 					activity.setProgressBarIndeterminateVisibility(activeLoadingCount == 0);
 				}
+				
+				public boolean shouldOverrideUrlLoading(WebView view, String url) {
+					if ((url != null && url.startsWith("http")) || (url != null && url.startsWith("ftp"))) {
+						view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+						return true;
+					} else {
+						return false;
+					}
+				}
 			});
 
 			webView.setWebChromeClient(new WebChromeClient() {
@@ -189,12 +199,16 @@ public class ArticleActivity extends Activity {
 			});
 			
 			String css =
-				"<style>" + 
-					"@font-face {font-family: 'Tisa'; src:url('fonts/TisaOT.otf');}" + 
-					"*{font-family: Tisa; color:rgb(24,24,24); background-color:rgb(247,247,247);}" + 
-					"img {text-align:center; margin: 0 auto 0 auto !important;}" +
-					"html, body {width:96%; padding:0 2% 0 2% !important; margin: 0 0 0 0 !important; font-size: 1.05em !important;}" +
-				"</style>";
+					"<style>" + 
+							"@font-face {font-family: 'Tisa'; src:url('fonts/TisaOT.otf');}" + 
+							"@font-face {font-family: 'Gotham'; src:url('fonts/Gotham-Bold.otf');}" +
+							"@font-face {font-family: 'GothamItalic'; src:url('fonts/Gotham-BookItalic.otf');}" +
+							"*{font-family: Tisa; color:rgb(24,24,24); background-color:rgb(247,247,247);}" + 
+							"html, body {width:96%; padding:0 2% 0 2% !important; margin: 0 0 0 0 !important; font-size: 1.05em !important;}" +
+							"h1 {font-family:Gotham !important; font-size:1.2em !important; margin-bottom:-18px;}" +
+							"h2 {font-family:GothamItalic !important; font-size:1.05em !important}" +
+							"img {text-align:center; margin: 0 auto 0 auto !important;}" +
+							"</style>";
 			
 			webView.loadDataWithBaseURL("file:///android_asset/", css + page.get(position), "text/html", "utf-8", null);
 
