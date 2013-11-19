@@ -80,21 +80,41 @@ public class ArticleActivity extends Activity {
 		Activity activity;
 		int activeLoadingCount = 0;
 		
-		public String[] splitStringEvery(String s, int interval) {
-		    int arrayLength = (int) Math.ceil(((s.length() / (double)interval)));
-		    String[] result = new String[arrayLength];
+		public ArrayList<String> splitStringEvery(String s, int interval) {
+		    ArrayList<String> result = new ArrayList<String>();
 
-		    int j = 0;
-		    int lastIndex = result.length - 1;
-		    for (int i = 0; i < lastIndex; i++) {
-		    	if (i == 0) {
-		    		result[i] = s.substring(j, j + 1200);
+		    int j;
+		    //int a;
+		    for (j = 0; j < s.length()-interval; j++) {
+		    	if (j == 0) {
+		    		result.add(s.substring(j, j + (2*interval)));
+		    		j += (2*interval);
 		    	} else {
-		    		result[i] = s.substring(j, j + interval);
+		    		result.add(s.substring(j, j + interval));
+		    		j += interval;
+		    		/*if (s.substring(j+interval, j+interval-2).equals("/>")) {
+		    			Log.d("Subs",s.substring(j+interval, j+interval-2));
+		    			result.add(s.substring(j, j + interval));
+			    		j += interval;
+		    		} else {
+		    			
+		    		}*/
+		    		
+		    		/*int i = j+interval-2;
+		    		Log.d("string",s.substring(i-1,i));
+	    			while (i > j) {
+	    				if (s.substring(i-1, i).equals(">")) {
+	    					result.add(s.substring(j,i-1));
+	    					j += i-j;
+	    					i = j;
+	    				} else {
+	    					i--;
+	    				}
+	    			}*/
+		    		
 		    	}
-		        j += interval;
-		    } //Add the last bit
-		    result[lastIndex] = s.substring(j);
+		    }
+		    result.add(s.substring(j));
 
 		    return result;
 		}
@@ -129,10 +149,7 @@ public class ArticleActivity extends Activity {
 			/*String first = image + content.substring(0,375);
 			content = content.substring(375,content.length());
 			content = text.toString();*/
-			String[] pages = splitStringEvery(content, 700);
-			for (int x=0; x < pages.length; x++) {
-				page.add(pages[x]);
-			}
+			page = splitStringEvery(content, 700);
 			
 			this.activity = activity;
 			this.controller = controller;
