@@ -420,6 +420,10 @@ a {
     font-family:"Avenir Next", sans-serif;
 }
 
+#you a {
+    text-decoration:bold;
+}
+
 .white {
 	color:#FFF;
 }
