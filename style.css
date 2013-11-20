@@ -413,8 +413,9 @@ a {
 
 #you {
     position:relative;
-	background-color:#ff5f5f;
-	color:#FFF;
+	/*background-color:#ff5f5f;*/
+    background-color:#FFF;
+	color:#000;
     padding: 0 7% 7% 7%;
     font-family:"Avenir Next", sans-serif;
 }
