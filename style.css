@@ -421,7 +421,7 @@ a {
 }
 
 #you a {
-    text-decoration:bold;
+    text-decoration:bold !important;
 }
 
 .white {
