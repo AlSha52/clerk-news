@@ -86,7 +86,6 @@ public final class R {
     }
     public static final class style {
         public static final int AppTheme=0x7f070000;
-        public static final int Theme_OurTheme=0x7f070001;
     }
     public static final class styleable {
         /** Attributes that can be used with a FlipView.

@@ -4,8 +4,7 @@ Copyright 2012 Aphid Mobile
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
- 
-   http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
- */
+*/
 
 package com.aphidmobile.flip;
 
@@ -139,12 +138,12 @@ public class FlipViewController extends AdapterView<Adapter> {
   }
 
   /**
-   * Set the bitmap config for the animation, default is ARGB_8888, which provides the best quality
-   * with large peak memory consumption.
-   *
-   * @param animationBitmapFormat ALPHA_8 is not supported and will throw exception when binding
-   *                              textures
-   */
+* Set the bitmap config for the animation, default is ARGB_8888, which provides the best quality
+* with large peak memory consumption.
+*
+* @param animationBitmapFormat ALPHA_8 is not supported and will throw exception when binding
+* textures
+*/
   public void setAnimationBitmapFormat(Bitmap.Config animationBitmapFormat) {
     this.animationBitmapFormat = animationBitmapFormat;
   }
@@ -166,11 +165,11 @@ public class FlipViewController extends AdapterView<Adapter> {
   }
 
   /**
-   * Request the animator to update display if the pageView has been preloaded. <p/> If the pageView
-   * is being used in the animation or its content has been buffered, the animator forcibly reloads
-   * it. <p/> The reloading process is a bit heavy for an active page, so please don't invoke it too
-   * frequently for an active page. The cost is trivial for inactive pages.
-   */
+* Request the animator to update display if the pageView has been preloaded. <p/> If the pageView
+* is being used in the animation or its content has been buffered, the animator forcibly reloads
+* it. <p/> The reloading process is a bit heavy for an active page, so please don't invoke it too
+* frequently for an active page. The cost is trivial for inactive pages.
+*/
   public void refreshPage(View pageView) {
     if (cards.refreshPageView(pageView)) {
       requestLayout();
@@ -178,8 +177,8 @@ public class FlipViewController extends AdapterView<Adapter> {
   }
 
   /**
-   * @see #refreshPage(android.view.View)
-   */
+* @see #refreshPage(android.view.View)
+*/
   public void refreshPage(int pageIndex) {
     if (cards.refreshPage(pageIndex)) {
       requestLayout();
@@ -187,8 +186,8 @@ public class FlipViewController extends AdapterView<Adapter> {
   }
 
   /**
-   * Force the animator reload all preloaded pages
-   */
+* Force the animator reload all preloaded pages
+*/
   public void refreshAllPages() {
     cards.refreshAllPages();
     requestLayout();

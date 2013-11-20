@@ -9,17 +9,29 @@ import org.jsoup.select.Elements;
 
 import com.aphidmobile.flip.FlipViewController;
 
+
+import android.widget.ListView;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Toast;
 import android.graphics.Bitmap;
 
 public class ArticleActivity extends Activity {
@@ -33,9 +45,44 @@ public class ArticleActivity extends Activity {
 	String entryid = null;
 	int published = 0;
 	
+	DrawerLayout drawerLayout;
+	ListView drawerList;
+	private String[] drawerTitles;
+	private ActionBarDrawerToggle drawerToggle;
+	DrawerItemClickListener drawerListener;
+
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.article_view);
+		
+		drawerTitles = getResources().getStringArray(R.array.drawer_titles);
+		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_article);
+		drawerList = (ListView) findViewById(R.id.left_drawer);
+		
+		drawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerTitles));
+		
+		drawerListener = new DrawerItemClickListener();
+		drawerList.setOnItemClickListener(drawerListener);
+		drawerToggle = new ActionBarDrawerToggle(
+                this,
+                drawerLayout,
+                R.drawable.ic_drawer, 
+                R.string.drawer_open,
+                R.string.drawer_close 
+                ) {
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        drawerLayout.setDrawerListener(drawerToggle);
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
+		
+		ActionBar actionBar = getActionBar();
+		actionBar.show();
+		
 
 		flipView = new FlipViewController(this, FlipViewController.VERTICAL);
 
@@ -51,6 +98,81 @@ public class ArticleActivity extends Activity {
 
 		setContentView(flipView);
 	}
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = drawerLayout.isDrawerOpen(drawerList);
+        menu.findItem(R.id.action_bookmark).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_donate).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_share).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	// The action bar home/up action should open or close the drawer.
+    	// ActionBarDrawerToggle will take care of this.
+    	if (drawerToggle.onOptionsItemSelected(item)) {
+    		return true;
+    	}
+    	// Handle action buttons
+    	switch(item.getItemId()) {
+    	case R.id.action_donate:
+    		Toast.makeText(this, "Donated", Toast.LENGTH_SHORT).show();
+    	case R.id.action_share:
+    		Toast.makeText(this, "Shared", Toast.LENGTH_SHORT).show();
+    	case R.id.action_bookmark:
+    		Toast.makeText(this, "Bookmarked", Toast.LENGTH_SHORT).show();
+    	}
+    	
+    	return true;
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
+    private void selectItem(int position) {
+        /*Fragment fragment = new PlanetFragment();
+        Bundle args = new Bundle();
+        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+        fragment.setArguments(args);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();*/
+
+        // update selected item and title, then close the drawer
+    	if (position == 0) {
+    		finish();
+    	}
+        //drawerList.setItemChecked(position, true);
+        //setTitle(drawerTitles[position]);
+        drawerLayout.closeDrawer(drawerList);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
 	
 	@Override
 	protected void onStop() {
